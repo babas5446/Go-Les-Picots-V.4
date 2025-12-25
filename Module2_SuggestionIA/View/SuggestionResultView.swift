@@ -236,6 +236,7 @@ struct SuggestionCard: View {
     let suggestion: SuggestionEngine.SuggestionResult
     let isExpanded: Bool
     let onToggle: () -> Void
+    @StateObject private var viewModel = LeureViewModel()
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -308,6 +309,29 @@ struct SuggestionCard: View {
             if isExpanded {
                 VStack(alignment: .leading, spacing: 16) {
                     Divider()
+                    
+                    // 📸 PHOTO DU LEURRE
+                    if let image = viewModel.chargerPhoto(pourLeurre: suggestion.leurre) {
+                        Image(uiImage: image)
+                            .resizable()
+                            .scaledToFit()
+                            .frame(maxHeight: 250)
+                            .cornerRadius(12)
+                            .shadow(color: Color.black.opacity(0.1), radius: 4, x: 0, y: 2)
+                            .padding(.horizontal)
+                    }
+                    
+                    // Modèle (si disponible)
+                    if let modele = suggestion.leurre.modele, !modele.isEmpty {
+                        HStack(spacing: 8) {
+                            Image(systemName: "tag.fill")
+                                .foregroundColor(Color(hex: "0277BD"))
+                            Text("Modèle : \(modele)")
+                                .font(.subheadline)
+                                .foregroundColor(.secondary)
+                        }
+                        .padding(.horizontal)
+                    }
                     
                     // Position spread
                     if let position = suggestion.positionSpread,

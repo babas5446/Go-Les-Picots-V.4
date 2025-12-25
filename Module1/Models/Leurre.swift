@@ -36,6 +36,7 @@ struct Leurre: Identifiable, Codable, Hashable {
     
     var couleurPrincipale: Couleur           // Obligatoire
     var couleurSecondaire: Couleur?          // Facultatif
+    var finition: Finition?                  // Facultatif
     
     // Conditionnel : SI typePeche == .traine
     var profondeurNageMin: Double?           // mètres
@@ -74,13 +75,19 @@ struct Leurre: Identifiable, Codable, Hashable {
         case marque
         case modele
         case reference  // Champ JSON uniquement (ignoré)
-        case typeLeurre = "type"           // ✅ JSON utilise "type"
+        case typeLeurre = "type"           // ✅ JSON utilise "type" (forme physique du leurre)
+        
+        // 🔧 IMPORTANT : "categoriePeche" dans le JSON = TYPE DE PÊCHE (traîne/lancer/jigging)
+        // ⚠️ CE N'EST PAS LA ZONE GÉOGRAPHIQUE !
+        // Les zones (lagon, large, passes...) sont dans "zones" ou déduites automatiquement
         case typePeche = "categoriePeche"  // ✅ JSON utilise "categoriePeche" (technique principale)
         case typesPecheCompatibles = "techniquesPossibles"  // ✅ JSON utilise "techniquesPossibles"
+        
         case longueur                      // ✅ JSON utilise "longueur"
         case poids
         case couleurPrincipale             // ✅ JSON utilise "couleurPrincipale"
         case couleurSecondaire = "couleursSecondaires"  // ✅ JSON utilise "couleursSecondaires" (array)
+        case finition                      // ✅ JSON utilise "finition"
         case profondeurNageMin = "profondeurMin"
         case profondeurNageMax = "profondeurMax"
         case vitesseTraineMin = "vitesseMinimale"     // ✅ JSON utilise "vitesseMinimale"
@@ -88,7 +95,11 @@ struct Leurre: Identifiable, Codable, Hashable {
         case notes
         case photoPath
         case contraste
+        
+        // 🌍 ZONES GÉOGRAPHIQUES (lagon, large, passes, DCP...)
+        // Peuvent être présentes dans le JSON OU déduites automatiquement
         case zonesAdaptees = "zones"
+        
         case especesCibles                 // ✅ JSON utilise "especesCibles"
         case positionsSpread               // ✅ JSON utilise "positionsSpread"
         case conditionsOptimales           // ✅ JSON utilise "conditionsOptimales"
@@ -99,7 +110,6 @@ struct Leurre: Identifiable, Codable, Hashable {
         // Champs supplémentaires du JSON (ignorés pour l'instant)
         case typeTete
         case actionNage
-        case finition
         case vitesseOptimale
     }
     
@@ -146,6 +156,8 @@ struct Leurre: Identifiable, Codable, Hashable {
             couleurSecondaire = nil
         }
         
+        finition = try container.decodeIfPresent(Finition.self, forKey: .finition)
+        
         profondeurNageMin = try container.decodeIfPresent(Double.self, forKey: .profondeurNageMin)
         profondeurNageMax = try container.decodeIfPresent(Double.self, forKey: .profondeurNageMax)
         vitesseTraineMin = try container.decodeIfPresent(Double.self, forKey: .vitesseTraineMin)
@@ -185,6 +197,7 @@ struct Leurre: Identifiable, Codable, Hashable {
         
         try container.encode(couleurPrincipale, forKey: .couleurPrincipale)
         try container.encodeIfPresent(couleurSecondaire, forKey: .couleurSecondaire)
+        try container.encodeIfPresent(finition, forKey: .finition)
         
         try container.encodeIfPresent(profondeurNageMin, forKey: .profondeurNageMin)
         try container.encodeIfPresent(profondeurNageMax, forKey: .profondeurNageMax)
@@ -220,6 +233,7 @@ struct Leurre: Identifiable, Codable, Hashable {
         poids: Double? = nil,
         couleurPrincipale: Couleur,
         couleurSecondaire: Couleur? = nil,
+        finition: Finition? = nil,
         profondeurNageMin: Double? = nil,
         profondeurNageMax: Double? = nil,
         vitesseTraineMin: Double? = nil,
@@ -239,6 +253,7 @@ struct Leurre: Identifiable, Codable, Hashable {
         self.poids = poids
         self.couleurPrincipale = couleurPrincipale
         self.couleurSecondaire = couleurSecondaire
+        self.finition = finition
         self.profondeurNageMin = profondeurNageMin
         self.profondeurNageMax = profondeurNageMax
         self.vitesseTraineMin = vitesseTraineMin
@@ -308,6 +323,89 @@ struct Leurre: Identifiable, Codable, Hashable {
             return "\(couleurPrincipale.displayName) / \(secondaire.displayName)"
         }
         return couleurPrincipale.displayName
+    }
+    
+    // MARK: - 🧠 DÉDUCTIONS INTELLIGENTES (Computed Properties Finales)
+    
+    /// Zones adaptées FINALES (avec déduction automatique si absentes)
+    var zonesAdapteesFinales: [Zone] {
+        // 1. Si déjà renseignées dans le modèle : priorité absolue
+        if let zones = zonesAdaptees, !zones.isEmpty {
+            return zones
+        }
+        
+        // 2. Analyser les notes pour détecter des zones
+        if let notes = notes, !notes.isEmpty {
+            let zonesNote = NoteAnalysisService.detecterZones(dans: notes)
+            if !zonesNote.isEmpty {
+                return zonesNote
+            }
+        }
+        
+        // 3. Déduction automatique basée sur caractéristiques du leurre
+        return LeurreIntelligenceService.deduireZones(leurre: self)
+    }
+    
+    /// Espèces cibles FINALES (avec déduction automatique si absentes/incomplètes)
+    var especesCiblesFinales: [String] {
+        var especes: [String] = []
+        
+        // 1. Analyser les notes EN PREMIER (source la plus fiable)
+        if let notes = notes, !notes.isEmpty {
+            let especesNote = NoteAnalysisService.detecterEspeces(dans: notes)
+            especes.append(contentsOf: especesNote)
+        }
+        
+        // 2. Ajouter celles du JSON (si existent et pas déjà présentes)
+        if let especesJSON = especesCibles {
+            for espece in especesJSON {
+                if !especes.contains(espece) {
+                    especes.append(espece)
+                }
+            }
+        }
+        
+        // 3. Compléter avec déduction automatique si liste vide
+        if especes.isEmpty {
+            especes = LeurreIntelligenceService.deduireEspeces(leurre: self)
+        }
+        
+        return especes
+    }
+    
+    /// Vitesses de traîne FINALES (avec déduction automatique si absentes)
+    var vitessesTraineFinales: (min: Double, max: Double) {
+        if let min = vitesseTraineMin, let max = vitesseTraineMax {
+            return (min, max)
+        }
+        return LeurreIntelligenceService.deduireVitesses(leurre: self)
+    }
+    
+    /// Conditions optimales FINALES (avec déduction automatique si absentes)
+    var conditionsOptimalesFinales: ConditionsOptimales {
+        if let conditions = conditionsOptimales {
+            return conditions
+        }
+        return LeurreIntelligenceService.deduireConditions(leurre: self)
+    }
+    
+    /// Positions spread FINALES (avec déduction automatique si absentes)
+    var positionsSpreadFinales: [PositionSpread] {
+        // 1. Si déjà renseignées : priorité
+        if let positions = positionsSpread, !positions.isEmpty {
+            return positions
+        }
+        
+        // 2. Analyser les notes
+        if let notes = notes, !notes.isEmpty {
+            let positionsNote = NoteAnalysisService.detecterPositionsSpread(dans: notes)
+            if !positionsNote.isEmpty {
+                return positionsNote
+            }
+        }
+        
+        // 3. Position libre par défaut
+        return [.libre]
     }
 }
 
@@ -606,6 +704,114 @@ enum Couleur: String, Codable, CaseIterable, Hashable {
         case .blow: return Color(red: 0.5, green: 0.8, blue: 1.0)
         case .rouge: return .red
         case .or: return Color(red: 1.0, green: 0.84, blue: 0.0)
+        }
+    }
+}
+
+// MARK: - Finition (aspect visuel du leurre)
+
+enum Finition: String, Codable, CaseIterable, Hashable {
+    case holographique = "holographique"
+    case metallique = "metallique"
+    case mate = "mate"
+    case brillante = "brillante"
+    case perlee = "perlee"
+    case paillete = "paillete"
+    case UV = "UV"
+    case phosphorescent = "phosphorescent"
+    case chrome = "chrome"
+    case miroir = "miroir"
+    
+    var displayName: String {
+        switch self {
+        case .holographique: return "Holographique"
+        case .metallique: return "Métallique"
+        case .mate: return "Mat"
+        case .brillante: return "Brillante"
+        case .perlee: return "Perlée"
+        case .paillete: return "Pailleté"
+        case .UV: return "UV"
+        case .phosphorescent: return "Phosphorescent"
+        case .chrome: return "Chrome"
+        case .miroir: return "Miroir"
+        }
+    }
+    
+    var description: String {
+        switch self {
+        case .holographique:
+            return "Effet arc-en-ciel, très attractif en pleine lumière"
+        case .metallique:
+            return "Reflets métalliques, imite écailles de poissons"
+        case .mate:
+            return "Sans reflet, silhouette discrète"
+        case .brillante:
+            return "Reflets lumineux standards"
+        case .perlee:
+            return "Effet nacré subtil"
+        case .paillete:
+            return "Paillettes brillantes, très flashy"
+        case .UV:
+            return "Réagit aux UV, visible en profondeur"
+        case .phosphorescent:
+            return "Lumineux dans l'obscurité"
+        case .chrome:
+            return "Effet miroir puissant"
+        case .miroir:
+            return "Reflets ultra-brillants, flashy extrême"
+        }
+    }
+    
+    /// Influence sur les conditions optimales
+    var conditionsIdeales: String {
+        switch self {
+        case .holographique, .chrome, .miroir, .paillete:
+            return "Eau claire, forte luminosité"
+        case .metallique, .brillante:
+            return "Polyvalent, toutes conditions"
+        case .mate:
+            return "Faible luminosité, eau trouble"
+        case .UV:
+            return "Profondeur, faible luminosité"
+        case .phosphorescent:
+            return "Crépuscule, nuit"
+        case .perlee:
+            return "Eau légèrement trouble"
+        }
+    }
+    
+    /// Bonus de scoring selon luminosité
+    func bonusScoring(luminosite: Luminosite, profondeurMax: Double?) -> Double {
+        switch (luminosite, self) {
+        // Holographique/Chrome/Miroir/Pailleté excellent en forte lumière
+        case (.forte, .holographique), (.forte, .chrome), (.forte, .miroir), (.forte, .paillete):
+            return 3.0
+            
+        // Mat excellent en faible luminosité
+        case (.faible, .mate), (.sombre, .mate), (.nuit, .mate):
+            return 3.0
+            
+        // UV excellent en profondeur
+        case (_, .UV):
+            if let profMax = profondeurMax, profMax > 10 {
+                return 2.0
+            }
+            return 0.5
+            
+        // Phosphorescent excellent la nuit
+        case (.nuit, .phosphorescent):
+            return 4.0
+            
+        // Perlée bon en eau légèrement trouble (luminosité diffuse)
+        case (.diffuse, .perlee):
+            return 2.0
+            
+        // Métallique/Brillante polyvalent
+        case (_, .metallique), (_, .brillante):
+            return 1.0
+            
+        default:
+            return 0.5  // Bonus neutre
         }
     }
 }

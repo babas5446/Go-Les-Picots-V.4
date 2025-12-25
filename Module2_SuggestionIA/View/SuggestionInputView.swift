@@ -19,7 +19,7 @@ struct SuggestionInputView: View {
     // Conditions de pêche
     @State private var conditions = ConditionsPeche(
         zone: .lagon,
-        profondeurCible: 3.0,
+        profondeurZone: 15.0,  // Profondeur du fond (lagon profond)
         vitesseBateau: 5.0,
         momentJournee: .matinee,
         luminosite: .forte,
@@ -82,7 +82,7 @@ struct SuggestionInputView: View {
                 loadingOverlay
             }
         }
-        .navigationTitle("🎣 Suggestion IA")
+        .navigationTitle("Suggestion IA")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
@@ -102,16 +102,20 @@ struct SuggestionInputView: View {
     
     private var headerSection: some View {
         VStack(spacing: 12) {
-            Image(systemName: "brain.head.profile")
-                .font(.system(size: 60))
-                .foregroundColor(Color(hex: "FFBC42"))
+            Image("fishing-lures-banner")
+                .resizable()
+                .scaledToFit()
+                .frame(maxWidth: .infinity)
+                .frame(height: 120)
+                .clipShape(RoundedRectangle(cornerRadius: 16))
+                .shadow(color: Color.black.opacity(0.1), radius: 8, x: 0, y: 4)
             
             Text("Intelligence Artificielle")
                 .font(.title2)
                 .fontWeight(.bold)
                 .foregroundColor(Color(hex: "0277BD"))
             
-            Text("Renseignez vos conditions de pêche pour obtenir des recommandations personnalisées basées sur les techniques professionnelles CPS")
+            Text("Renseignez vos conditions de pêche pour obtenir des recommandations professionnelles personnalisées")
                 .font(.subheadline)
                 .foregroundColor(.secondary)
                 .multilineTextAlignment(.center)
@@ -161,17 +165,22 @@ struct SuggestionInputView: View {
                 
                 VStack(alignment: .leading, spacing: 8) {
                     HStack {
-                        Text("Profondeur cible")
-                            .font(.subheadline)
-                            .fontWeight(.semibold)
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("Profondeur de la zone")
+                                .font(.subheadline)
+                                .fontWeight(.semibold)
+                            Text("(ce que vous voyez au sondeur)")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
                         Spacer()
-                        Text("\(Int(conditions.profondeurCible))m")
+                        Text("\(Int(conditions.profondeurZone))m")
                             .font(.title3)
                             .fontWeight(.bold)
                             .foregroundColor(Color(hex: "0277BD"))
                     }
                     
-                    Slider(value: $conditions.profondeurCible, in: 0...150, step: 1)
+                    Slider(value: $conditions.profondeurZone, in: 0...150, step: 1)
                         .tint(Color(hex: "0277BD"))
                     
                     HStack {
@@ -183,6 +192,22 @@ struct SuggestionInputView: View {
                             .font(.caption)
                             .foregroundColor(.gray)
                     }
+                    
+                    // 💡 NOUVEAU : Affichage de la profondeur de nage déduite
+                    HStack(spacing: 6) {
+                        Image(systemName: "info.circle.fill")
+                            .font(.caption)
+                            .foregroundColor(Color(hex: "FFBC42"))
+                        Text("Profondeur de nage déduite : \(conditions.profondeurNageDeduiteDescription)")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                    .padding(.top, 8)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 6)
+                    .background(Color(hex: "FFBC42").opacity(0.1))
+                    .cornerRadius(8)
                 }
             }
         }

@@ -7,6 +7,13 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		6100BC312EFC13350084CFB5 /* AMELIORATIONS_MOTEUR_SUGGESTION_FINITION.md in Resources */ = {isa = PBXBuildFile; fileRef = 6100BC302EFC13350084CFB5 /* AMELIORATIONS_MOTEUR_SUGGESTION_FINITION.md */; };
+		6100BC652EFCF6B00084CFB5 /* AMELIORATION_PROFONDEUR_ZONE.md in Resources */ = {isa = PBXBuildFile; fileRef = 6100BC642EFCF6B00084CFB5 /* AMELIORATION_PROFONDEUR_ZONE.md */; };
+		6100BC802EFD5B030084CFB5 /* ANALYSE_ADEQUATION_FICHE_JSON_MOTEUR.md in Resources */ = {isa = PBXBuildFile; fileRef = 6100BC7F2EFD5B030084CFB5 /* ANALYSE_ADEQUATION_FICHE_JSON_MOTEUR.md */; };
+		6100BC822EFD5B350084CFB5 /* FIX_LEURRES_LANCER_DANS_SPREAD.md in Resources */ = {isa = PBXBuildFile; fileRef = 6100BC812EFD5B350084CFB5 /* FIX_LEURRES_LANCER_DANS_SPREAD.md */; };
+		6100BC842EFD61580084CFB5 /* MIGRATION_PROPRIETES_FINALES_25DEC2024.md in Resources */ = {isa = PBXBuildFile; fileRef = 6100BC832EFD61580084CFB5 /* MIGRATION_PROPRIETES_FINALES_25DEC2024.md */; };
+		6100BC862EFD617D0084CFB5 /* RESUME_CORRECTIONS_25DEC2024.md in Resources */ = {isa = PBXBuildFile; fileRef = 6100BC852EFD617D0084CFB5 /* RESUME_CORRECTIONS_25DEC2024.md */; };
+		6100BC882EFD63280084CFB5 /* AJOUT_TECHNIQUES_COMPATIBLES_FORMULAIRE.md in Resources */ = {isa = PBXBuildFile; fileRef = 6100BC872EFD63280084CFB5 /* AJOUT_TECHNIQUES_COMPATIBLES_FORMULAIRE.md */; };
 		61263A542EE95DC400BBF0A8 /* LeurreFormView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61263A532EE95DC400BBF0A8 /* LeurreFormView.swift */; };
 		617DD0092EF15E99002C82F1 /* GUIDE_IMPORT_RAPIDE.md in Resources */ = {isa = PBXBuildFile; fileRef = 617DD0082EF15E99002C82F1 /* GUIDE_IMPORT_RAPIDE.md */; };
 		617DD0182EF1F74B002C82F1 /* LeurreWebScraperService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 617DD0172EF1F74B002C82F1 /* LeurreWebScraperService.swift */; };
@@ -44,6 +51,24 @@
 		6193EA852EE25312000BE2F6 /* SpreadVisualizationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6193EA802EE25312000BE2F6 /* SpreadVisualizationView.swift */; };
 		6193EAE52EE6A88F000BE2F6 /* SuggestionEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6193EAE42EE6A88F000BE2F6 /* SuggestionEngine.swift */; };
 		61941ACE2EEA0B170019B66B /* EspecesDatabase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61941ACD2EEA0B170019B66B /* EspecesDatabase.swift */; };
+		61C5FBD32EF8F5810030C95D /* AUTOCOMPLETION_COULEURS_SIMPLE.md in Resources */ = {isa = PBXBuildFile; fileRef = 61C5FBD22EF8F5810030C95D /* AUTOCOMPLETION_COULEURS_SIMPLE.md */; };
+		61C5FBD52EF8F5A60030C95D /* GUIDE_AUTOCOMPLETION_COULEURS.md in Resources */ = {isa = PBXBuildFile; fileRef = 61C5FBD42EF8F5A60030C95D /* GUIDE_AUTOCOMPLETION_COULEURS.md */; };
+		61C5FBD72EF8F5DA0030C95D /* RECAP_AUTOCOMPLETION_SIMPLE.md in Resources */ = {isa = PBXBuildFile; fileRef = 61C5FBD62EF8F5DA0030C95D /* RECAP_AUTOCOMPLETION_SIMPLE.md */; };
+		61C5FBDB2EF909E80030C95D /* CreerCouleurView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61C5FBDA2EF909E80030C95D /* CreerCouleurView.swift */; };
+		61C5FBDD2EF90A460030C95D /* CouleurCustom.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61C5FBDC2EF90A460030C95D /* CouleurCustom.swift */; };
+		61C5FBDF2EF90A7F0030C95D /* CouleurSearchField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61C5FBDE2EF90A7F0030C95D /* CouleurSearchField.swift */; };
+		61C5FBE12EF90AA20030C95D /* GestionCouleursCustomView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61C5FBE02EF90AA20030C95D /* GestionCouleursCustomView.swift */; };
+		61C5FBE32EF90AAD0030C95D /* ParametresAppView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61C5FBE22EF90AAD0030C95D /* ParametresAppView.swift */; };
+		61C5FBE52EF90B170030C95D /* RECAP_COULEURS_V2.md in Resources */ = {isa = PBXBuildFile; fileRef = 61C5FBE42EF90B170030C95D /* RECAP_COULEURS_V2.md */; };
+		61C5FBE72EF90B530030C95D /* GUIDE_UTILISATEUR_COULEURS_V2.md in Resources */ = {isa = PBXBuildFile; fileRef = 61C5FBE62EF90B530030C95D /* GUIDE_UTILISATEUR_COULEURS_V2.md */; };
+		61C5FBE92EF90B7A0030C95D /* IMPLEMENTATION_V2_RESUME.md in Resources */ = {isa = PBXBuildFile; fileRef = 61C5FBE82EF90B7A0030C95D /* IMPLEMENTATION_V2_RESUME.md */; };
+		61C5FC042EF9BCB10030C95D /* AMELIORATIONS_AFFICHAGE_LEURRES.md in Resources */ = {isa = PBXBuildFile; fileRef = 61C5FC032EF9BCB10030C95D /* AMELIORATIONS_AFFICHAGE_LEURRES.md */; };
+		61C5FC062EF9BCE80030C95D /* RESUME_CORRECTIONS_PHOTOS.md in Resources */ = {isa = PBXBuildFile; fileRef = 61C5FC052EF9BCE80030C95D /* RESUME_CORRECTIONS_PHOTOS.md */; };
+		61C5FC082EF9BD4A0030C95D /* CHECKLIST_FINALE.md in Resources */ = {isa = PBXBuildFile; fileRef = 61C5FC072EF9BD4A0030C95D /* CHECKLIST_FINALE.md */; };
+		61C5FC232EFA87B30030C95D /* NoteAnalysisService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61C5FC222EFA87B30030C95D /* NoteAnalysisService.swift */; };
+		61C5FC252EFA87F60030C95D /* LeurreIntelligenceService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61C5FC242EFA87F60030C95D /* LeurreIntelligenceService.swift */; };
+		61C5FC272EFA88840030C95D /* AJOUT_FINITION_FORMULAIRE.md in Resources */ = {isa = PBXBuildFile; fileRef = 61C5FC262EFA88840030C95D /* AJOUT_FINITION_FORMULAIRE.md */; };
+		61C5FC292EFA88D80030C95D /* RECAPITULATIF_MODIFICATIONS_23DEC2024.md in Resources */ = {isa = PBXBuildFile; fileRef = 61C5FC282EFA88D80030C95D /* RECAPITULATIF_MODIFICATIONS_23DEC2024.md */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -64,6 +89,13 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		6100BC302EFC13350084CFB5 /* AMELIORATIONS_MOTEUR_SUGGESTION_FINITION.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = AMELIORATIONS_MOTEUR_SUGGESTION_FINITION.md; sourceTree = "<group>"; };
+		6100BC642EFCF6B00084CFB5 /* AMELIORATION_PROFONDEUR_ZONE.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = AMELIORATION_PROFONDEUR_ZONE.md; sourceTree = "<group>"; };
+		6100BC7F2EFD5B030084CFB5 /* ANALYSE_ADEQUATION_FICHE_JSON_MOTEUR.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = ANALYSE_ADEQUATION_FICHE_JSON_MOTEUR.md; sourceTree = "<group>"; };
+		6100BC812EFD5B350084CFB5 /* FIX_LEURRES_LANCER_DANS_SPREAD.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = FIX_LEURRES_LANCER_DANS_SPREAD.md; sourceTree = "<group>"; };
+		6100BC832EFD61580084CFB5 /* MIGRATION_PROPRIETES_FINALES_25DEC2024.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = MIGRATION_PROPRIETES_FINALES_25DEC2024.md; sourceTree = "<group>"; };
+		6100BC852EFD617D0084CFB5 /* RESUME_CORRECTIONS_25DEC2024.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = RESUME_CORRECTIONS_25DEC2024.md; sourceTree = "<group>"; };
+		6100BC872EFD63280084CFB5 /* AJOUT_TECHNIQUES_COMPATIBLES_FORMULAIRE.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = AJOUT_TECHNIQUES_COMPATIBLES_FORMULAIRE.md; sourceTree = "<group>"; };
 		61263A532EE95DC400BBF0A8 /* LeurreFormView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LeurreFormView.swift; sourceTree = "<group>"; };
 		617DD0082EF15E99002C82F1 /* GUIDE_IMPORT_RAPIDE.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = GUIDE_IMPORT_RAPIDE.md; sourceTree = "<group>"; };
 		617DD0172EF1F74B002C82F1 /* LeurreWebScraperService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LeurreWebScraperService.swift; sourceTree = "<group>"; };
@@ -104,6 +136,24 @@
 		6193EA822EE25312000BE2F6 /* SuggestionResultView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SuggestionResultView.swift; sourceTree = "<group>"; };
 		6193EAE42EE6A88F000BE2F6 /* SuggestionEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SuggestionEngine.swift; sourceTree = "<group>"; };
 		61941ACD2EEA0B170019B66B /* EspecesDatabase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EspecesDatabase.swift; sourceTree = "<group>"; };
+		61C5FBD22EF8F5810030C95D /* AUTOCOMPLETION_COULEURS_SIMPLE.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = AUTOCOMPLETION_COULEURS_SIMPLE.md; sourceTree = "<group>"; };
+		61C5FBD42EF8F5A60030C95D /* GUIDE_AUTOCOMPLETION_COULEURS.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = GUIDE_AUTOCOMPLETION_COULEURS.md; sourceTree = "<group>"; };
+		61C5FBD62EF8F5DA0030C95D /* RECAP_AUTOCOMPLETION_SIMPLE.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = RECAP_AUTOCOMPLETION_SIMPLE.md; sourceTree = "<group>"; };
+		61C5FBDA2EF909E80030C95D /* CreerCouleurView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreerCouleurView.swift; sourceTree = "<group>"; };
+		61C5FBDC2EF90A460030C95D /* CouleurCustom.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CouleurCustom.swift; sourceTree = "<group>"; };
+		61C5FBDE2EF90A7F0030C95D /* CouleurSearchField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CouleurSearchField.swift; sourceTree = "<group>"; };
+		61C5FBE02EF90AA20030C95D /* GestionCouleursCustomView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GestionCouleursCustomView.swift; sourceTree = "<group>"; };
+		61C5FBE22EF90AAD0030C95D /* ParametresAppView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParametresAppView.swift; sourceTree = "<group>"; };
+		61C5FBE42EF90B170030C95D /* RECAP_COULEURS_V2.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = RECAP_COULEURS_V2.md; sourceTree = "<group>"; };
+		61C5FBE62EF90B530030C95D /* GUIDE_UTILISATEUR_COULEURS_V2.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = GUIDE_UTILISATEUR_COULEURS_V2.md; sourceTree = "<group>"; };
+		61C5FBE82EF90B7A0030C95D /* IMPLEMENTATION_V2_RESUME.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = IMPLEMENTATION_V2_RESUME.md; sourceTree = "<group>"; };
+		61C5FC032EF9BCB10030C95D /* AMELIORATIONS_AFFICHAGE_LEURRES.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = AMELIORATIONS_AFFICHAGE_LEURRES.md; sourceTree = "<group>"; };
+		61C5FC052EF9BCE80030C95D /* RESUME_CORRECTIONS_PHOTOS.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = RESUME_CORRECTIONS_PHOTOS.md; sourceTree = "<group>"; };
+		61C5FC072EF9BD4A0030C95D /* CHECKLIST_FINALE.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = CHECKLIST_FINALE.md; sourceTree = "<group>"; };
+		61C5FC222EFA87B30030C95D /* NoteAnalysisService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteAnalysisService.swift; sourceTree = "<group>"; };
+		61C5FC242EFA87F60030C95D /* LeurreIntelligenceService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LeurreIntelligenceService.swift; sourceTree = "<group>"; };
+		61C5FC262EFA88840030C95D /* AJOUT_FINITION_FORMULAIRE.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = AJOUT_FINITION_FORMULAIRE.md; sourceTree = "<group>"; };
+		61C5FC282EFA88D80030C95D /* RECAPITULATIF_MODIFICATIONS_23DEC2024.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = RECAPITULATIF_MODIFICATIONS_23DEC2024.md; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -181,6 +231,14 @@
 				617DD0282EF20ACE002C82F1 /* GUIDE_TEST_NOUVEAUX_PARSERS.md */,
 				617DD02A2EF20AD2002C82F1 /* RESUME_MODIFICATIONS_CODE.md */,
 				617DD02C2EF20AD6002C82F1 /* ARCHITECTURE_PARSERS.md */,
+				61C5FBDA2EF909E80030C95D /* CreerCouleurView.swift */,
+				61C5FBDC2EF90A460030C95D /* CouleurCustom.swift */,
+				61C5FBDE2EF90A7F0030C95D /* CouleurSearchField.swift */,
+				61C5FBE02EF90AA20030C95D /* GestionCouleursCustomView.swift */,
+				61C5FBE22EF90AAD0030C95D /* ParametresAppView.swift */,
+				61C5FBE42EF90B170030C95D /* RECAP_COULEURS_V2.md */,
+				61C5FBE62EF90B530030C95D /* GUIDE_UTILISATEUR_COULEURS_V2.md */,
+				61C5FBE82EF90B7A0030C95D /* IMPLEMENTATION_V2_RESUME.md */,
 			);
 			sourceTree = "<group>";
 		};
@@ -225,6 +283,15 @@
 				617DD14B2EF54157002C82F1 /* FIX_IMMEDIAT.md */,
 				617DD14D2EF54310002C82F1 /* AssetsDiagnosticView.swift */,
 				617DD1512EF56062002C82F1 /* ImageCoordinatePickerView.swift */,
+				61C5FC032EF9BCB10030C95D /* AMELIORATIONS_AFFICHAGE_LEURRES.md */,
+				61C5FC052EF9BCE80030C95D /* RESUME_CORRECTIONS_PHOTOS.md */,
+				61C5FC072EF9BD4A0030C95D /* CHECKLIST_FINALE.md */,
+				61C5FC222EFA87B30030C95D /* NoteAnalysisService.swift */,
+				61C5FC242EFA87F60030C95D /* LeurreIntelligenceService.swift */,
+				61C5FC262EFA88840030C95D /* AJOUT_FINITION_FORMULAIRE.md */,
+				61C5FC282EFA88D80030C95D /* RECAPITULATIF_MODIFICATIONS_23DEC2024.md */,
+				6100BC832EFD61580084CFB5 /* MIGRATION_PROPRIETES_FINALES_25DEC2024.md */,
+				6100BC852EFD617D0084CFB5 /* RESUME_CORRECTIONS_25DEC2024.md */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -247,6 +314,9 @@
 				619298D62EF807D000D201C1 /* CORRECTIONS_COMPILATION_21DEC2024.md */,
 				619298D82EF8089E00D201C1 /* CORRECTION_MAHIMAHI_21DEC2024.md */,
 				619298DA2EF809D400D201C1 /* AMELIORATION_TOUTES_ESPECES_21DEC2024.md */,
+				61C5FBD22EF8F5810030C95D /* AUTOCOMPLETION_COULEURS_SIMPLE.md */,
+				61C5FBD42EF8F5A60030C95D /* GUIDE_AUTOCOMPLETION_COULEURS.md */,
+				61C5FBD62EF8F5DA0030C95D /* RECAP_AUTOCOMPLETION_SIMPLE.md */,
 			);
 			path = ViewModels;
 			sourceTree = "<group>";
@@ -260,6 +330,8 @@
 				6193EA4E2EE142F1000BE2F6 /* FiltresView.swift */,
 				6193EA4F2EE142F1000BE2F6 /* LeurreDetailView.swift */,
 				617DD0082EF15E99002C82F1 /* GUIDE_IMPORT_RAPIDE.md */,
+				6100BC302EFC13350084CFB5 /* AMELIORATIONS_MOTEUR_SUGGESTION_FINITION.md */,
+				6100BC872EFD63280084CFB5 /* AJOUT_TECHNIQUES_COMPATIBLES_FORMULAIRE.md */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -282,6 +354,8 @@
 				6193EA822EE25312000BE2F6 /* SuggestionResultView.swift */,
 				617DD0DF2EF4A66E002C82F1 /* RECAP_MODIFICATIONS_19_DEC_2024.md */,
 				617DD0E12EF4A675002C82F1 /* GUIDE_AJOUT_IMAGE.md */,
+				6100BC7F2EFD5B030084CFB5 /* ANALYSE_ADEQUATION_FICHE_JSON_MOTEUR.md */,
+				6100BC812EFD5B350084CFB5 /* FIX_LEURRES_LANCER_DANS_SPREAD.md */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -297,6 +371,7 @@
 			isa = PBXGroup;
 			children = (
 				6193EA7A2EE252A0000BE2F6 /* ConditionsPeche.swift */,
+				6100BC642EFCF6B00084CFB5 /* AMELIORATION_PROFONDEUR_ZONE.md */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -417,24 +492,42 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				61C5FC042EF9BCB10030C95D /* AMELIORATIONS_AFFICHAGE_LEURRES.md in Resources */,
+				6100BC882EFD63280084CFB5 /* AJOUT_TECHNIQUES_COMPATIBLES_FORMULAIRE.md in Resources */,
 				617DD0252EF20AAD002C82F1 /* AJOUT_SITES_FRANCAIS_17DEC2024.md in Resources */,
+				6100BC312EFC13350084CFB5 /* AMELIORATIONS_MOTEUR_SUGGESTION_FINITION.md in Resources */,
 				617DD0E02EF4A66E002C82F1 /* RECAP_MODIFICATIONS_19_DEC_2024.md in Resources */,
 				617DD01E2EF1F86E002C82F1 /* RECAP_MODIFICATIONS_17DEC2024.md in Resources */,
+				61C5FBE72EF90B530030C95D /* GUIDE_UTILISATEUR_COULEURS_V2.md in Resources */,
 				617DD01A2EF1F7F0002C82F1 /* DOCUMENTATION_IMPORT_URL.md in Resources */,
+				61C5FC292EFA88D80030C95D /* RECAPITULATIF_MODIFICATIONS_23DEC2024.md in Resources */,
 				617DD01C2EF1F81C002C82F1 /* IMPLEMENTATION_IMPORT_URL_PHASE1.md in Resources */,
+				6100BC842EFD61580084CFB5 /* MIGRATION_PROPRIETES_FINALES_25DEC2024.md in Resources */,
 				617DD0E22EF4A675002C82F1 /* GUIDE_AJOUT_IMAGE.md in Resources */,
+				61C5FC272EFA88840030C95D /* AJOUT_FINITION_FORMULAIRE.md in Resources */,
+				6100BC802EFD5B030084CFB5 /* ANALYSE_ADEQUATION_FICHE_JSON_MOTEUR.md in Resources */,
 				619298D72EF807D000D201C1 /* CORRECTIONS_COMPILATION_21DEC2024.md in Resources */,
 				619298DB2EF809D400D201C1 /* AMELIORATION_TOUTES_ESPECES_21DEC2024.md in Resources */,
 				617DD0212EF20781002C82F1 /* TESTS_NOUVEAUX_SITES.md in Resources */,
+				61C5FBD32EF8F5810030C95D /* AUTOCOMPLETION_COULEURS_SIMPLE.md in Resources */,
 				617DD14A2EF54154002C82F1 /* CORRECTIONS_URGENTES_POSITIONS.md in Resources */,
+				6100BC652EFCF6B00084CFB5 /* AMELIORATION_PROFONDEUR_ZONE.md in Resources */,
 				617DD0092EF15E99002C82F1 /* GUIDE_IMPORT_RAPIDE.md in Resources */,
+				61C5FC082EF9BD4A0030C95D /* CHECKLIST_FINALE.md in Resources */,
+				61C5FBD52EF8F5A60030C95D /* GUIDE_AUTOCOMPLETION_COULEURS.md in Resources */,
 				619298D52EF8069E00D201C1 /* CORRECTIONS_LOGIQUE_SUGGESTION_21DEC2024.md in Resources */,
 				617DD0232EF207FB002C82F1 /* AJOUT_NOMAD_WALMART.md in Resources */,
+				61C5FC062EF9BCE80030C95D /* RESUME_CORRECTIONS_PHOTOS.md in Resources */,
 				617DD02D2EF20AD6002C82F1 /* ARCHITECTURE_PARSERS.md in Resources */,
+				6100BC822EFD5B350084CFB5 /* FIX_LEURRES_LANCER_DANS_SPREAD.md in Resources */,
+				61C5FBD72EF8F5DA0030C95D /* RECAP_AUTOCOMPLETION_SIMPLE.md in Resources */,
 				617DD02B2EF20AD2002C82F1 /* RESUME_MODIFICATIONS_CODE.md in Resources */,
 				617DD14C2EF54157002C82F1 /* FIX_IMMEDIAT.md in Resources */,
+				61C5FBE92EF90B7A0030C95D /* IMPLEMENTATION_V2_RESUME.md in Resources */,
 				617DD1502EF55FAF002C82F1 /* leurres_database_COMPLET.json in Resources */,
+				6100BC862EFD617D0084CFB5 /* RESUME_CORRECTIONS_25DEC2024.md in Resources */,
 				619298D92EF8089E00D201C1 /* CORRECTION_MAHIMAHI_21DEC2024.md in Resources */,
+				61C5FBE52EF90B170030C95D /* RECAP_COULEURS_V2.md in Resources */,
 				617DD0292EF20ACE002C82F1 /* GUIDE_TEST_NOUVEAUX_PARSERS.md in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -462,19 +555,26 @@
 			files = (
 				617DD0DE2EF4A5EB002C82F1 /* SpreadSchemaView.swift in Sources */,
 				61941ACE2EEA0B170019B66B /* EspecesDatabase.swift in Sources */,
+				61C5FBE32EF90AAD0030C95D /* ParametresAppView.swift in Sources */,
 				6193EA512EE142F1000BE2F6 /* Leurre.swift in Sources */,
 				6193EAE52EE6A88F000BE2F6 /* SuggestionEngine.swift in Sources */,
 				6193EA522EE142F1000BE2F6 /* ColorExtension.swift in Sources */,
 				6193EA532EE142F1000BE2F6 /* LeureViewModel.swift in Sources */,
+				61C5FBDF2EF90A7F0030C95D /* CouleurSearchField.swift in Sources */,
 				6193EA832EE25312000BE2F6 /* SuggestionInputView.swift in Sources */,
 				6193EA842EE25312000BE2F6 /* SuggestionResultView.swift in Sources */,
 				617DD14E2EF54310002C82F1 /* AssetsDiagnosticView.swift in Sources */,
+				61C5FC232EFA87B30030C95D /* NoteAnalysisService.swift in Sources */,
+				61C5FC252EFA87F60030C95D /* LeurreIntelligenceService.swift in Sources */,
 				6193EA852EE25312000BE2F6 /* SpreadVisualizationView.swift in Sources */,
 				61263A542EE95DC400BBF0A8 /* LeurreFormView.swift in Sources */,
 				6193EA7C2EE252A0000BE2F6 /* ConditionsPeche.swift in Sources */,
+				61C5FBDB2EF909E80030C95D /* CreerCouleurView.swift in Sources */,
 				617DD1522EF56062002C82F1 /* ImageCoordinatePickerView.swift in Sources */,
+				61C5FBE12EF90AA20030C95D /* GestionCouleursCustomView.swift in Sources */,
 				6193EA542EE142F1000BE2F6 /* LeurreDetailView.swift in Sources */,
 				6193EA552EE142F1000BE2F6 /* BoiteView.swift in Sources */,
+				61C5FBDD2EF90A460030C95D /* CouleurCustom.swift in Sources */,
 				617DD1482EF53C4B002C82F1 /* DiagnosticView.swift in Sources */,
 				617DD0182EF1F74B002C82F1 /* LeurreWebScraperService.swift in Sources */,
 				6193EA562EE142F1000BE2F6 /* FiltresView.swift in Sources */,

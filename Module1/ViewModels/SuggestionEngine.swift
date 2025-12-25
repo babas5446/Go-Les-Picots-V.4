@@ -413,10 +413,32 @@ class SuggestionEngine: ObservableObject {
                 return false
             }
             
+            // 0.1 🔒 DOUBLE VÉRIFICATION : Exclure explicitement les leurres de lancer
+            // Même si mal configurés dans la base de données
+            let typesLancerInterdits: [TypeLeurre] = [
+                .popper, 
+                .stickbait, 
+                .stickbaitFlottant, 
+                .stickbaitCoulant,
+                .jigMetallique, 
+                .jigStickbait, 
+                .jigStickbaitCoulant, 
+                .jigVibrant,
+                .madai,
+                .inchiku
+            ]
+            if typesLancerInterdits.contains(leurre.typeLeurre) {
+                return false
+            }
+            
+            // 0.2 🔒 TRIPLE VÉRIFICATION : Exclure si technique principale = lancer
+            if leurre.typePeche == .lancer {
+                return false
+            }
+            
             // 1. RÈGLES D'ÉLIMINATION ABSOLUES
             
-            // ⚠️ CORRECTION : Poppers et Jigs sont déjà exclus par `estLeurreDeTraîne`
-            // Ces types sont uniquement pour lancer/jigging, jamais pour traîne
+            // ⚠️ CORRECTION : Poppers et Jigs doivent être exclus même si mal configurés
             
             // Wahoo = haute vitesse obligatoire
             if conditions.especePrioritaire == .wahoo {
@@ -426,7 +448,9 @@ class SuggestionEngine: ObservableObject {
             }
             
             // 2. COMPATIBILITÉ ZONE (critère principal)
-            guard let zonesAdaptees = leurre.zonesAdaptees, !zonesAdaptees.isEmpty else {
+            // ✅ UTILISATION DES VALEURS FINALES (JSON > Notes > Déduction auto)
+            let zonesAdaptees = leurre.zonesAdapteesFinales
+            guard !zonesAdaptees.isEmpty else {
                 return false
             }
             
@@ -446,24 +470,22 @@ class SuggestionEngine: ObservableObject {
             }
             
             // 3. COMPATIBILITÉ PROFONDEUR D'EAU
-            // ⚠️ CORRECTION : profondeurCible = profondeur d'eau (bathymétrie)
+            // ⚠️ CORRECTION : profondeurZone = profondeur d'eau (bathymétrie)
             // On élimine UNIQUEMENT les leurres qui toucheraient le fond
             // Tous les leurres dont profondeurNage < profondeurEau sont OK
             
             if let profMax = leurre.profondeurNageMax {
                 // Éliminer si le leurre nage plus profond que l'eau disponible
                 // Marge de sécurité : -2m (éviter d'accrocher le fond)
-                if profMax > conditions.profondeurCible - 2 {
+                if profMax > conditions.profondeurZone - 2 {
                     return false
                 }
             }
             // Si pas de profondeurNageMax définie, on accepte le leurre
             
             // 4. COMPATIBILITÉ VITESSE (tolérance ±1 nœud)
-            guard let vitesseMin = leurre.vitesseTraineMin,
-                  let vitesseMax = leurre.vitesseTraineMax else {
-                return false
-            }
+            // ✅ UTILISATION DES VALEURS FINALES (JSON > Déduction auto)
+            let (vitesseMin, vitesseMax) = leurre.vitessesTraineFinales
             
             var vitesseMaxAjustee = vitesseMax
             
@@ -569,8 +591,9 @@ class SuggestionEngine: ObservableObject {
         
         // Bonus espèce cible
         if let espece = conditions.especePrioritaire {
-            if let especesCibles = leurre.especesCibles,
-               especesCibles.contains(espece.displayName) {
+            // ✅ UTILISATION DES VALEURS FINALES (Notes > JSON > Déduction auto)
+            let especesCibles = leurre.especesCiblesFinales
+            if especesCibles.contains(espece.displayName) {
                 probabilite += 5.0
             }
         }
@@ -673,7 +696,9 @@ class SuggestionEngine: ObservableObject {
         var scoreEspeces: Double = 0
         
         // 1. Zone (15 points max)
-        if let zones = leurre.zonesAdaptees {
+        // ✅ UTILISATION DES VALEURS FINALES (JSON > Notes > Déduction auto)
+        let zones = leurre.zonesAdapteesFinales
+        if !zones.isEmpty {
             if conditions.zone == .lagon {
                 if zones.contains(.lagon) {
                     scoreZone = 15
@@ -708,46 +733,20 @@ class SuggestionEngine: ObservableObject {
         }
         
         // 2. Profondeur (10 points max)
-        // ⚠️ CORRECTION : Scoring basé sur l'adéquation profondeur nage vs espèce/zone
-        // Plus le leurre nage dans la bonne couche d'eau, plus le score est élevé
+        // ✅ NOUVEAU : Utilisation de la profondeur déduite depuis profondeurZone
+        // Le moteur compare la profondeur de nage du leurre avec la profondeur déduite optimale
         if let profMin = leurre.profondeurNageMin,
            let profMax = leurre.profondeurNageMax {
             
-            // Déterminer la profondeur de nage idéale selon zone/espèce
-            let profondeurIdéale: Double
-            
-            if let espece = conditions.especePrioritaire {
-                // Profondeurs préférées par espèce
-                switch espece {
-                case .thazard, .thazardBatard, .bonite:
-                    profondeurIdéale = 5.0  // Surface/sub-surface
-                case .mahiMahi:
-                    profondeurIdéale = 3.0  // ⚠️ CORRECTION : Remonte à la surface si attiré par couleurs vives
-                case .barracuda:
-                    profondeurIdéale = 6.0
-                case .thonJaune, .carangueGT, .wahoo:
-                    profondeurIdéale = 10.0  // Moyenne profondeur
-                case .marlin, .voilier:
-                    profondeurIdéale = 15.0  // Gros pélagiques
-                default:
-                    profondeurIdéale = 8.0  // Défaut
-                }
-            } else {
-                // Profondeur selon zone
-                switch conditions.zone {
-                case .lagon, .recif:
-                    profondeurIdéale = 5.0
-                case .passe:
-                    profondeurIdéale = 8.0
-                case .large, .tombant:
-                    profondeurIdéale = 10.0
-                case .profond, .dcp:
-                    profondeurIdéale = 15.0
-                }
-            }
+            // ✅ Utiliser la profondeur de nage déduite depuis la zone
+            let (profondeurNageMin, profondeurNageMax) = conditions.profondeurNageDeduite
             
             // Calculer le milieu de la plage de nage du leurre
             let profondeurMoyenneLeurre = (profMin + profMax) / 2.0
+            
+            // Calculer le milieu de la plage de nage optimale pour cette zone
+            let profondeurIdéale = (profondeurNageMin + profondeurNageMax) / 2.0
+            
             let ecartAvecIdeale = abs(profondeurMoyenneLeurre - profondeurIdéale)
             
             // Attribution des points selon écart
@@ -768,28 +767,28 @@ class SuggestionEngine: ObservableObject {
         }
         
         // 3. Vitesse (10 points max)
-        if let vitesseMin = leurre.vitesseTraineMin,
-           let vitesseMax = leurre.vitesseTraineMax {
-            let vitesseOptimale = (vitesseMin + vitesseMax) / 2.0
-            
-            if conditions.vitesseBateau >= vitesseMin &&
-               conditions.vitesseBateau <= vitesseMax {
-                if abs(conditions.vitesseBateau - vitesseOptimale) <= 1 {
-                    scoreVitesse = 10
-                } else {
-                    scoreVitesse = 8
-                }
-            } else if conditions.vitesseBateau >= vitesseMin - 1 &&
-                      conditions.vitesseBateau <= vitesseMax + 1 {
-                scoreVitesse = 5
+        // ✅ UTILISATION DES VALEURS FINALES (JSON > Déduction auto)
+        let (vitesseMin, vitesseMax) = leurre.vitessesTraineFinales
+        let vitesseOptimale = (vitesseMin + vitesseMax) / 2.0
+        
+        if conditions.vitesseBateau >= vitesseMin &&
+           conditions.vitesseBateau <= vitesseMax {
+            if abs(conditions.vitesseBateau - vitesseOptimale) <= 1 {
+                scoreVitesse = 10
+            } else {
+                scoreVitesse = 8
             }
+        } else if conditions.vitesseBateau >= vitesseMin - 1 &&
+                  conditions.vitesseBateau <= vitesseMax + 1 {
+            scoreVitesse = 5
         }
         
         // 4. Espèces (5 points max)
         if let especeCible = conditions.especePrioritaire {
             // Mode ciblé : privilégier les leurres spécifiques
-            if let especesCibles = leurre.especesCibles,
-               especesCibles.contains(especeCible.displayName) {
+            // ✅ UTILISATION DES VALEURS FINALES (Notes > JSON > Déduction auto)
+            let especesCibles = leurre.especesCiblesFinales
+            if especesCibles.contains(especeCible.displayName) {
                 scoreEspeces = 5
             } else {
                 scoreEspeces = 1
@@ -797,27 +796,24 @@ class SuggestionEngine: ObservableObject {
         } else {
             // ⚠️ MODE "TOUTES ESPÈCES" : Favoriser la polyvalence
             // Plus un leurre cible d'espèces différentes, plus il est intéressant
-            if let especesCibles = leurre.especesCibles, !especesCibles.isEmpty {
-                let nombreEspeces = especesCibles.count
-                
-                // Scoring progressif selon polyvalence
-                switch nombreEspeces {
-                case 5...: 
-                    scoreEspeces = 5.0  // Très polyvalent (5+ espèces)
-                case 4:
-                    scoreEspeces = 4.5  // Polyvalent (4 espèces)
-                case 3:
-                    scoreEspeces = 4.0  // Bon (3 espèces)
-                case 2:
-                    scoreEspeces = 3.5  // Correct (2 espèces)
-                case 1:
-                    scoreEspeces = 2.5  // Spécialisé (1 espèce)
-                default:
-                    scoreEspeces = 3.0  // Neutre
-                }
-            } else {
-                // Pas d'espèces définies : score neutre
-                scoreEspeces = 3.0
+            // ✅ UTILISATION DES VALEURS FINALES
+            let especesCibles = leurre.especesCiblesFinales
+            let nombreEspeces = especesCibles.count
+            
+            // Scoring progressif selon polyvalence
+            switch nombreEspeces {
+            case 5...: 
+                scoreEspeces = 5.0  // Très polyvalent (5+ espèces)
+            case 4:
+                scoreEspeces = 4.5  // Polyvalent (4 espèces)
+            case 3:
+                scoreEspeces = 4.0  // Bon (3 espèces)
+            case 2:
+                scoreEspeces = 3.5  // Correct (2 espèces)
+            case 1:
+                scoreEspeces = 2.5  // Spécialisé (1 espèce)
+            default:
+                scoreEspeces = 3.0  // Neutre (liste vide, ne devrait pas arriver avec déduction auto)
             }
         }
         
@@ -954,7 +950,51 @@ class SuggestionEngine: ObservableObject {
             bonusContraste = 5
         }
         
-        let total = bonusLuminosite + bonusTurbidite + bonusContraste
+        // 4. Bonus finition selon luminosité et turbidité (0-5 points)
+        var bonusFinition: Double = 0
+        if let finition = leurre.finition {
+            // Scoring de base selon luminosité et profondeur
+            bonusFinition = finition.bonusScoring(
+                luminosite: conditions.luminosite,
+                profondeurMax: leurre.profondeurNageMax
+            )
+            
+            // Bonus supplémentaire selon turbidité
+            switch (conditions.turbiditeEau, finition) {
+            case (.claire, .holographique), (.claire, .chrome), (.claire, .miroir):
+                bonusFinition += 1.5  // Excellent en eau claire
+            case (.claire, .paillete):
+                bonusFinition += 1.0
+                
+            case (.legerementTrouble, .perlee), (.legerementTrouble, .metallique):
+                bonusFinition += 1.5  // Optimal en eau légèrement trouble
+                
+            case (.trouble, .mate):
+                bonusFinition += 2.0  // Mat parfait en eau trouble
+            case (.tresTrouble, .mate):
+                bonusFinition += 2.5  // Mat exceptionnel en eau très trouble
+                
+            case (.trouble, .UV), (.tresTrouble, .UV):
+                bonusFinition += 1.0  // UV perce la turbidité
+                
+            default:
+                break  // Pas de bonus supplémentaire
+            }
+            
+            // Bonus état de mer (finitions résistantes aux remous)
+            if conditions.etatMer == .agitee || conditions.etatMer == .formee {
+                switch finition {
+                case .mate, .phosphorescent:
+                    bonusFinition += 1.0  // Silhouettes sombres meilleures en mer formée
+                case .holographique, .miroir, .chrome:
+                    bonusFinition -= 0.5  // Reflets moins efficaces en mer agitée
+                default:
+                    break
+                }
+            }
+        }
+        
+        let total = bonusLuminosite + bonusTurbidite + bonusContraste + bonusFinition
         
         return (bonusLuminosite, bonusTurbidite, bonusContraste, total)
     }
@@ -1103,11 +1143,10 @@ class SuggestionEngine: ObservableObject {
             }
         }
         
-        if let vitesseMin = leurre.vitesseTraineMin,
-           let vitesseMax = leurre.vitesseTraineMax {
-            justifTechnique += "Sa plage de vitesse (\(Int(vitesseMin))-\(Int(vitesseMax)) nœuds) "
-            justifTechnique += "correspond à votre allure de \(Int(conditions.vitesseBateau)) nœuds."
-        }
+        // ✅ UTILISATION DES VALEURS FINALES (JSON > Déduction auto)
+        let (vitesseMin, vitesseMax) = leurre.vitessesTraineFinales
+        justifTechnique += "Sa plage de vitesse (\(Int(vitesseMin))-\(Int(vitesseMax)) nœuds) "
+        justifTechnique += "correspond à votre allure de \(Int(conditions.vitesseBateau)) nœuds."
         
         // JUSTIFICATION COULEUR
         var justifCouleur = ""
@@ -1151,16 +1190,58 @@ class SuggestionEngine: ObservableObject {
             }
         }
         
+        // ✨ NOUVEAU : Justification finition
+        if let finition = leurre.finition {
+            justifCouleur += "\n\n✨ FINITION : "
+            
+            switch (conditions.luminosite, conditions.turbiditeEau, finition) {
+            // Conditions excellentes pour finitions brillantes
+            case (.forte, .claire, .holographique):
+                justifCouleur += "Holographique PARFAIT en eau claire et forte lumière ! Les reflets arc-en-ciel seront irrésistibles."
+            case (.forte, .claire, .chrome), (.forte, .claire, .miroir):
+                justifCouleur += "Finition miroir IDÉALE ! Les éclats lumineux imitent parfaitement les écailles en plein soleil."
+            case (.forte, .claire, .paillete):
+                justifCouleur += "Paillettes ultra-visibles en eau claire - effet scintillant maximal !"
+                
+            // Conditions optimales pour finitions discrètes
+            case (.faible, .trouble, .mate), (.sombre, .trouble, .mate), (.nuit, _, .mate):
+                justifCouleur += "Finition mate EXCELLENTE ! Silhouette pure sans reflets parasites, parfait pour ces conditions."
+            case (.sombre, _, .phosphorescent), (.nuit, _, .phosphorescent):
+                justifCouleur += "Phosphorescent CHAMPION ! Luminosité propre visible même de loin dans l'obscurité."
+                
+            // Finitions polyvalentes
+            case (_, _, .metallique), (_, _, .brillante):
+                justifCouleur += "Finition polyvalente adaptée à ces conditions variées."
+                
+            // Finitions spécialisées
+            case (_, .legerementTrouble, .perlee):
+                justifCouleur += "Nacré parfait en eau légèrement trouble - reflets subtils mais efficaces."
+            case (_, .trouble, .UV), (_, .tresTrouble, .UV):
+                justifCouleur += "UV stratégique en eau trouble - réaction ultraviolette perce la turbidité !"
+                
+            // Situations sous-optimales
+            case (.forte, _, .mate):
+                justifCouleur += "Finition mate fonctionne mais brillant serait plus efficace en forte lumière."
+            case (.faible, _, .holographique), (.sombre, _, .holographique):
+                justifCouleur += "Holographique moins efficace en faible lumière - privilégiez pour sessions diurnes."
+            case (.nuit, _, .holographique), (.nuit, _, .chrome), (.nuit, _, .miroir):
+                justifCouleur += "Finition brillante peu adaptée la nuit - silhouette sombre recommandée."
+                
+            default:
+                justifCouleur += "\(finition.displayName) - \(finition.conditionsIdeales)"
+            }
+        }
+        
         // Turbidité
         if conditions.turbiditeEau == .tresTrouble {
             if leurre.couleurPrincipale == .chartreuse || leurre.couleurPrincipale == .jauneFluo {
-                justifCouleur += "💡 Eau très trouble : votre jaune/chartreuse sera ultra-visible !"
+                justifCouleur += "\n\n💡 Eau très trouble : votre jaune/chartreuse sera ultra-visible !"
             } else if let contraste = leurre.contraste, contraste == .flashy {
-                justifCouleur += "⚡️ Flashy parfait pour percer la turbidité."
+                justifCouleur += "\n\n⚡️ Flashy parfait pour percer la turbidité."
             }
         } else if conditions.turbiditeEau == .claire {
             if leurre.couleurPrincipale == .argente || leurre.couleurPrincipale == .bleuArgente {
-                justifCouleur += "✨ Eau claire + argenté = imitation parfaite des bancs de poissons."
+                justifCouleur += "\n\n✨ Eau claire + argenté = imitation parfaite des bancs de poissons."
             }
         }
         
@@ -1476,7 +1557,8 @@ class SuggestionEngine: ObservableObject {
             var meilleuresNouvellesEspeces = 0
             
             for (index, suggestion) in suggestionsRestantes.enumerated() {
-                let especesCibles = Set(suggestion.leurre.especesCibles ?? [])
+                // ✅ UTILISATION DES VALEURS FINALES
+                let especesCibles = Set(suggestion.leurre.especesCiblesFinales)
                 let nouvellesEspeces = especesCibles.subtracting(especesDejaPresentes)
                 
                 // Critères de sélection :
@@ -1498,9 +1580,9 @@ class SuggestionEngine: ObservableObject {
             resultat.append(suggestionSelectionnee)
             
             // Mettre à jour les espèces déjà couvertes
-            if let especes = suggestionSelectionnee.leurre.especesCibles {
-                especesDejaPresentes.formUnion(especes)
-            }
+            // ✅ UTILISATION DES VALEURS FINALES
+            let especes = suggestionSelectionnee.leurre.especesCiblesFinales
+            especesDejaPresentes.formUnion(especes)
         }
         
         // Phase 2 : Compléter avec les meilleurs scores restants si nécessaire
@@ -1546,7 +1628,7 @@ class SuggestionEngine: ObservableObject {
             if !shotgunAutorise(
                 profil: conditions.profilBateau,
                 vitesse: conditions.vitesseBateau,
-                profondeur: conditions.profondeurCible,
+                profondeur: conditions.profondeurZone,
                 zone: conditions.zone
             ) {
                 // Retirer shotgun et limiter à 4 lignes
@@ -1651,6 +1733,53 @@ class SuggestionEngine: ObservableObject {
                 analyse += "   ✅ Excellent ! Chaque leurre a une couleur unique.\n\n"
             } else {
                 analyse += "   ⚠️ Certaines couleurs se répètent.\n\n"
+            }
+            
+            // ✨ NOUVEAU : Diversité des finitions
+            let finitions = suggestions.compactMap { $0.leurre.finition }
+            if !finitions.isEmpty {
+                let finitionsUniques = Set(finitions)
+                analyse += "✨ Diversité finitions : \(finitionsUniques.count) types (\(finitions.count)/\(suggestions.count) leurres avec finition)\n"
+                
+                // Lister les finitions présentes
+                let finitionsNoms = finitionsUniques.map { $0.displayName }.sorted()
+                if !finitionsNoms.isEmpty {
+                    analyse += "   Types : \(finitionsNoms.joined(separator: ", "))\n"
+                }
+                
+                // Évaluation selon conditions
+                switch (conditions.luminosite, conditions.turbiditeEau) {
+                case (.forte, .claire):
+                    let brillantes = finitions.filter { 
+                        $0 == .holographique || $0 == .chrome || $0 == .miroir || $0 == .paillete
+                    }.count
+                    if brillantes >= 2 {
+                        analyse += "   ✅ Plusieurs finitions brillantes - parfait pour forte lumière !\n\n"
+                    } else {
+                        analyse += "   💡 Ajoutez des finitions holographiques/chrome pour profiter de la lumière.\n\n"
+                    }
+                    
+                case (.faible, _), (.sombre, _), (.nuit, _):
+                    let sombres = finitions.filter { $0 == .mate || $0 == .phosphorescent }.count
+                    if sombres >= 1 {
+                        analyse += "   ✅ Finition mate/phosphorescente présente - adapté à la faible luminosité.\n\n"
+                    } else {
+                        analyse += "   💡 Une finition mate améliorerait la silhouette en faible lumière.\n\n"
+                    }
+                    
+                case (_, .trouble), (_, .tresTrouble):
+                    let adaptees = finitions.filter { $0 == .mate || $0 == .UV }.count
+                    if adaptees >= 1 {
+                        analyse += "   ✅ Finition adaptée à l'eau trouble présente.\n\n"
+                    } else {
+                        analyse += "   💡 UV ou mat seraient plus efficaces en eau trouble.\n\n"
+                    }
+                    
+                default:
+                    analyse += "   ℹ️ Bon mélange de finitions.\n\n"
+                }
+            } else {
+                analyse += "ℹ️ Aucune finition renseignée - pensez à compléter vos leurres.\n\n"
             }
             
             // Diversité des tailles
@@ -1772,6 +1901,34 @@ class SuggestionEngine: ObservableObject {
         if conditions.etatMer == .agitee || conditions.etatMer == .formee {
             analyse += "• Mer formée : augmentez légèrement la vitesse\n"
             analyse += "• Utilisez des leurres plus lourds\n"
+        }
+        
+        // ✨ NOUVEAU : Recommandations finitions selon conditions
+        analyse += "\n✨ FINITIONS RECOMMANDÉES :\n"
+        
+        switch (conditions.luminosite, conditions.turbiditeEau) {
+        case (.forte, .claire):
+            analyse += "• Holographique, Chrome, Miroir → Profitez de la lumière !\n"
+            analyse += "• Pailleté → Effet scintillant maximal\n"
+            
+        case (.diffuse, .legerementTrouble):
+            analyse += "• Perlé, Métallique → Reflets subtils efficaces\n"
+            analyse += "• Brillante → Polyvalence assurée\n"
+            
+        case (.faible, _), (.sombre, _):
+            analyse += "• Mat → Silhouette pure sans reflets parasites\n"
+            analyse += "• Phosphorescent → Si pêche au crépuscule/nuit\n"
+            
+        case (.nuit, _):
+            analyse += "• Phosphorescent → Luminosité propre visible de loin\n"
+            analyse += "• Mat sombre → Silhouette découpée parfaite\n"
+            
+        case (_, .trouble), (_, .tresTrouble):
+            analyse += "• UV → Réaction ultraviolette perce la turbidité\n"
+            analyse += "• Mat → Contraste maximal\n"
+            
+        default:
+            analyse += "• Métallique, Brillante → Polyvalents en conditions variées\n"
         }
         
         return analyse

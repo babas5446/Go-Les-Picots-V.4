@@ -31,13 +31,15 @@ struct LeurreDetailView: View {
                     cartePerformance
                 }
                 
-                // Espèces cibles (si calculées)
-                if let especes = leurre.especesCibles, !especes.isEmpty {
+                // Espèces cibles (affichage des valeurs FINALES)
+                // ✅ Toujours afficher (déduction automatique si JSON vide)
+                if !leurre.especesCiblesFinales.isEmpty {
                     carteEspecesCibles
                 }
                 
-                // Zones adaptées (si calculées)
-                if let zones = leurre.zonesAdaptees, !zones.isEmpty {
+                // Zones adaptées (affichage des valeurs FINALES)
+                // ✅ Toujours afficher (déduction automatique si JSON vide)
+                if !leurre.zonesAdapteesFinales.isEmpty {
                     carteZonesAdaptees
                 }
                 
@@ -206,6 +208,47 @@ struct LeurreDetailView: View {
                     
                     Spacer()
                 }
+                
+                // Finition (si présente)
+                if let finition = leurre.finition {
+                    VStack(alignment: .leading, spacing: 6) {
+                        HStack {
+                            Text("Finition :")
+                                .font(.subheadline)
+                                .foregroundColor(.gray)
+                                .frame(width: 100, alignment: .leading)
+                            
+                            HStack(spacing: 6) {
+                                Image(systemName: "sparkles")
+                                    .foregroundColor(Color(hex: "FFBC42"))
+                                    .font(.caption)
+                                Text(finition.displayName)
+                                    .font(.subheadline)
+                                    .fontWeight(.semibold)
+                            }
+                            
+                            Spacer()
+                        }
+                        
+                        // Description de la finition
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text(finition.description)
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                                .fixedSize(horizontal: false, vertical: true)
+                            
+                            HStack(spacing: 4) {
+                                Image(systemName: "lightbulb.fill")
+                                    .font(.caption2)
+                                    .foregroundColor(.blue)
+                                Text(finition.conditionsIdeales)
+                                    .font(.caption2)
+                                    .foregroundColor(.blue)
+                            }
+                        }
+                        .padding(.leading, 100)
+                    }
+                }
             }
         }
         .padding()
@@ -274,8 +317,9 @@ struct LeurreDetailView: View {
         VStack(alignment: .leading, spacing: 16) {
             SectionHeader(title: "Zones adaptées", icon: "map.fill")
             
+            // ✅ UTILISATION DES VALEURS FINALES (JSON > Notes > Déduction auto)
             FlowLayout(spacing: 8) {
-                ForEach(leurre.zonesAdaptees ?? [], id: \.self) { zone in
+                ForEach(leurre.zonesAdapteesFinales, id: \.self) { zone in
                     HStack(spacing: 4) {
                         Text(zone.icon)
                         Text(zone.displayName)
@@ -302,8 +346,9 @@ struct LeurreDetailView: View {
         VStack(alignment: .leading, spacing: 16) {
             SectionHeader(title: "Espèces cibles", icon: "fish.fill")
             
+            // ✅ UTILISATION DES VALEURS FINALES (Notes > JSON > Déduction auto)
             FlowLayout(spacing: 8) {
-                ForEach(leurre.especesCibles ?? [], id: \.self) { espece in
+                ForEach(leurre.especesCiblesFinales, id: \.self) { espece in
                     BadgeView(text: espece, color: Color(hex: "FFBC42"), large: true)
                 }
             }

@@ -519,10 +519,14 @@ private struct BubbleSlot: View {
 
 private struct LeurreDetailSheet: View {
     let suggestion: SuggestionEngine.SuggestionResult
+    @StateObject private var viewModel = LeureViewModel()
     
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
+                // 📸 PHOTO DU LEURRE
+                photoLeurre
+                
                 // En-tête
                 HStack {
                     VStack(alignment: .leading, spacing: 8) {
@@ -563,22 +567,56 @@ private struct LeurreDetailSheet: View {
                 
                 Divider()
                 
-                // Couleur
-                HStack(spacing: 12) {
-                    Text("Couleur")
+                // Modèle (si disponible)
+                if let modele = suggestion.leurre.modele, !modele.isEmpty {
+                    HStack(spacing: 8) {
+                        Image(systemName: "tag.fill")
+                            .foregroundColor(Color(hex: "0277BD"))
+                        Text("Modèle : \(modele)")
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
+                    }
+                }
+                
+                Divider()
+                
+                // Couleurs (principale + secondaire si existe)
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Couleurs")
                         .font(.subheadline)
                         .fontWeight(.semibold)
                     
-                    HStack(spacing: 6) {
-                        Circle()
-                            .fill(couleurPourAffichage(suggestion.leurre.couleurPrincipale))
-                            .frame(width: 24, height: 24)
-                            .overlay(
+                    HStack(spacing: 12) {
+                        // Couleur principale
+                        HStack(spacing: 6) {
+                            Circle()
+                                .fill(couleurPourAffichage(suggestion.leurre.couleurPrincipale))
+                                .frame(width: 24, height: 24)
+                                .overlay(
+                                    Circle()
+                                        .stroke(Color.gray.opacity(0.3), lineWidth: 1)
+                                )
+                            Text(suggestion.leurre.couleurPrincipale.displayName)
+                                .font(.subheadline)
+                        }
+                        
+                        // Couleur secondaire
+                        if let secondaire = suggestion.leurre.couleurSecondaire {
+                            Text("+")
+                                .foregroundColor(.secondary)
+                            HStack(spacing: 6) {
                                 Circle()
-                                    .stroke(Color.gray.opacity(0.3), lineWidth: 1)
-                            )
-                        Text(suggestion.leurre.couleurPrincipale.displayName)
-                            .font(.subheadline)
+                                    .fill(couleurPourAffichage(secondaire))
+                                    .frame(width: 20, height: 20)
+                                    .overlay(
+                                        Circle()
+                                            .stroke(Color.gray.opacity(0.3), lineWidth: 1)
+                                    )
+                                Text(secondaire.displayName)
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
                     }
                 }
                 
@@ -708,6 +746,49 @@ private struct LeurreDetailSheet: View {
         case 70..<80: return Color(hex: "FFBC42")
         case 60..<70: return .blue
         default: return .gray
+        }
+    }
+    
+    // 📸 Photo du leurre
+    private var photoLeurre: some View {
+        Group {
+            if let image = viewModel.chargerPhoto(pourLeurre: suggestion.leurre) {
+                Image(uiImage: image)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(maxHeight: 250)
+                    .cornerRadius(16)
+                    .shadow(color: Color.black.opacity(0.1), radius: 8, x: 0, y: 4)
+            } else {
+                // Placeholder si pas de photo
+                ZStack {
+                    RoundedRectangle(cornerRadius: 16)
+                        .fill(
+                            LinearGradient(
+                                gradient: Gradient(colors: [
+                                    Color(hex: "E0E0E0"),
+                                    Color(hex: "F5F5F5")
+                                ]),
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
+                        .frame(height: 180)
+                    
+                    VStack(spacing: 12) {
+                        Text(suggestion.leurre.typeLeurre.icon)
+                            .font(.system(size: 64))
+                        
+                        Text("Aucune photo")
+                            .font(.caption)
+                            .foregroundColor(.gray)
+                        
+                        Text(suggestion.leurre.typeLeurre.displayName)
+                            .font(.caption2)
+                            .foregroundColor(.secondary)
+                    }
+                }
+            }
         }
     }
 }

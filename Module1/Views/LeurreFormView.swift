@@ -60,6 +60,10 @@ struct LeurreFormView: View {
     @State private var typeLeurre: TypeLeurre = .poissonNageur
     @State private var typePeche: TypePeche = .traine
     
+    // 🆕 Techniques compatibles (facultatif)
+    @State private var typesPecheCompatibles: Set<TypePeche> = []
+    @State private var showTechniquesCompatibles: Bool = false
+    
     // Caractéristiques
     @State private var longueur: String = ""
     @State private var poids: String = ""
@@ -68,6 +72,7 @@ struct LeurreFormView: View {
     @State private var couleurPrincipale: Couleur = .bleuArgente
     @State private var couleurSecondaire: Couleur? = nil
     @State private var hasCouleurSecondaire: Bool = false
+    @State private var finitionSelectionnee: Finition? = nil
     
     // Traîne (conditionnel)
     @State private var profondeurMin: String = ""
@@ -113,11 +118,18 @@ struct LeurreFormView: View {
             _modele = State(initialValue: leurre.modele ?? "")
             _typeLeurre = State(initialValue: leurre.typeLeurre)
             _typePeche = State(initialValue: leurre.typePeche)
+            
+            // 🆕 Charger les techniques compatibles
+            let compatibles = leurre.typesPecheCompatibles ?? []
+            _typesPecheCompatibles = State(initialValue: Set(compatibles))
+            _showTechniquesCompatibles = State(initialValue: !compatibles.isEmpty)
+            
             _longueur = State(initialValue: String(format: "%.1f", leurre.longueur))
             _poids = State(initialValue: leurre.poids.map { String(format: "%.0f", $0) } ?? "")
             _couleurPrincipale = State(initialValue: leurre.couleurPrincipale)
             _couleurSecondaire = State(initialValue: leurre.couleurSecondaire)
             _hasCouleurSecondaire = State(initialValue: leurre.couleurSecondaire != nil)
+            _finitionSelectionnee = State(initialValue: leurre.finition)  // ✅ Initialiser la finition
             _profondeurMin = State(initialValue: leurre.profondeurNageMin.map { String(format: "%.1f", $0) } ?? "")
             _profondeurMax = State(initialValue: leurre.profondeurNageMax.map { String(format: "%.1f", $0) } ?? "")
             _vitesseMin = State(initialValue: leurre.vitesseTraineMin.map { String(format: "%.0f", $0) } ?? "")
@@ -153,11 +165,17 @@ struct LeurreFormView: View {
                 // Section Type
                 sectionType
                 
+                // 🆕 Section Techniques compatibles (facultatif)
+                sectionTechniquesCompatibles
+                
                 // Section Caractéristiques
                 sectionCaracteristiques
                 
                 // Section Couleurs
                 sectionCouleurs
+                
+                // Section Finition
+                sectionFinition
                 
                 // Section Traîne (conditionnel)
                 if typePeche.necessiteInfosTraine {
@@ -382,6 +400,12 @@ struct LeurreFormView: View {
                         .tag(type)
                 }
             }
+            .onChange(of: typePeche) { newValue in
+                // 🆕 Mettre à jour automatiquement les techniques compatibles
+                if showTechniquesCompatibles {
+                    typesPecheCompatibles.insert(newValue)
+                }
+            }
             
             Picker("Type de leurre", selection: $typeLeurre) {
                 ForEach(TypeLeurre.allCases, id: \.self) { type in
@@ -391,6 +415,79 @@ struct LeurreFormView: View {
             }
         } header: {
             Text("Classification")
+        }
+    }
+    
+    // 🆕 NOUVELLE SECTION : Techniques compatibles (facultatif)
+    private var sectionTechniquesCompatibles: some View {
+        Section {
+            // Toggle pour activer/désactiver la section
+            Toggle(isOn: $showTechniquesCompatibles) {
+                HStack(spacing: 8) {
+                    Image(systemName: "checkmark.circle.badge.questionmark")
+                        .foregroundColor(Color(hex: "FFBC42"))
+                    Text("Techniques compatibles")
+                        .fontWeight(.medium)
+                }
+            }
+            .tint(Color(hex: "FFBC42"))
+            .onChange(of: showTechniquesCompatibles) { newValue in
+                if !newValue {
+                    // Réinitialiser si désactivé
+                    typesPecheCompatibles.removeAll()
+                } else {
+                    // Ajouter automatiquement la technique principale
+                    typesPecheCompatibles.insert(typePeche)
+                }
+            }
+            
+            // Afficher les options si activé
+            if showTechniquesCompatibles {
+                VStack(alignment: .leading, spacing: 12) {
+                    Text("Sélectionnez toutes les techniques utilisables avec ce leurre")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                    
+                    // Checkboxes pour chaque technique
+                    ForEach(TypePeche.allCases, id: \.self) { technique in
+                        Toggle(isOn: Binding(
+                            get: { typesPecheCompatibles.contains(technique) },
+                            set: { isSelected in
+                                if isSelected {
+                                    typesPecheCompatibles.insert(technique)
+                                } else {
+                                    // Ne pas permettre de décocher la technique principale
+                                    if technique != typePeche {
+                                        typesPecheCompatibles.remove(technique)
+                                    }
+                                }
+                            }
+                        )) {
+                            HStack(spacing: 8) {
+                                Image(systemName: technique.icon)
+                                    .foregroundColor(technique == typePeche ? Color(hex: "0277BD") : .secondary)
+                                Text(technique.displayName)
+                                    .foregroundColor(technique == typePeche ? Color(hex: "0277BD") : .primary)
+                                if technique == typePeche {
+                                    Text("(principale)")
+                                        .font(.caption)
+                                        .foregroundColor(Color(hex: "0277BD"))
+                                }
+                            }
+                        }
+                        .disabled(technique == typePeche) // La technique principale reste cochée
+                        .tint(Color(hex: "FFBC42"))
+                    }
+                }
+            }
+        } header: {
+            Text("🔧 Polyvalence (Facultatif)")
+        } footer: {
+            if showTechniquesCompatibles {
+                Text("La technique principale (\(typePeche.displayName)) est toujours incluse. Ajoutez les autres techniques possibles avec ce leurre.")
+            } else {
+                Text("Activez pour indiquer si ce leurre peut être utilisé avec plusieurs techniques (ex: traîne + lancer)")
+            }
         }
     }
     
@@ -424,43 +521,74 @@ struct LeurreFormView: View {
     
     private var sectionCouleurs: some View {
         Section {
-            Picker("Couleur principale", selection: $couleurPrincipale) {
-                ForEach(Couleur.allCases, id: \.self) { couleur in
-                    HStack {
-                        Circle()
-                            .fill(couleur.swiftUIColor)
-                            .frame(width: 20, height: 20)
-                        Text(couleur.displayName)
-                    }
-                    .tag(couleur)
-                }
-            }
+            // Couleur principale avec autocomplétion
+            CouleurSearchField(
+                couleurSelectionnee: $couleurPrincipale,
+                titre: "Couleur principale"
+            )
+            .padding(.vertical, 4)
             
             Toggle("Couleur secondaire", isOn: $hasCouleurSecondaire)
             
+            // Couleur secondaire avec autocomplétion
             if hasCouleurSecondaire {
-                Picker("Couleur secondaire", selection: Binding(
-                    get: { couleurSecondaire ?? .blanc },
-                    set: { couleurSecondaire = $0 }
-                )) {
-                    ForEach(Couleur.allCases, id: \.self) { couleur in
-                        HStack {
-                            Circle()
-                                .fill(couleur.swiftUIColor)
-                                .frame(width: 20, height: 20)
-                            Text(couleur.displayName)
-                        }
-                        .tag(couleur)
-                    }
-                }
+                CouleurSearchField(
+                    couleurSelectionnee: Binding(
+                        get: { couleurSecondaire ?? .blanc },
+                        set: { couleurSecondaire = $0 }
+                    ),
+                    titre: "Couleur secondaire"
+                )
+                .padding(.vertical, 4)
             }
         } header: {
             Text("Couleurs")
         } footer: {
-            if let secondaire = hasCouleurSecondaire ? couleurSecondaire : nil {
-                Text("Contraste détecté : \(determinerContrastePrevisu(principale: couleurPrincipale, secondaire: secondaire).displayName)")
-            } else {
-                Text("Contraste détecté : \(couleurPrincipale.contrasteNaturel.displayName)")
+            VStack(alignment: .leading, spacing: 4) {
+                if let secondaire = hasCouleurSecondaire ? couleurSecondaire : nil {
+                    Text("Contraste détecté : \(determinerContrastePrevisu(principale: couleurPrincipale, secondaire: secondaire).displayName)")
+                } else {
+                    Text("Contraste détecté : \(couleurPrincipale.contrasteNaturel.displayName)")
+                }
+                Text("💡 Tapez pour rechercher rapidement")
+                    .font(.caption2)
+                    .foregroundColor(.secondary)
+            }
+        }
+    }
+    
+    // MARK: - Section Finition
+    
+    private var sectionFinition: some View {
+        Section {
+            Picker("Finition", selection: $finitionSelectionnee) {
+                Text("Non renseignée")
+                    .tag(nil as Finition?)
+                
+                ForEach(Finition.allCases, id: \.self) { finition in
+                    Text(finition.displayName)
+                        .tag(finition as Finition?)
+                }
+            }
+            
+            // Afficher la description si une finition est sélectionnée
+            if let finition = finitionSelectionnee {
+                VStack(alignment: .leading, spacing: 6) {
+                    Text(finition.description)
+                        .font(.callout)
+                        .foregroundColor(.secondary)
+                    
+                    Label(finition.conditionsIdeales, systemImage: "lightbulb.fill")
+                        .font(.caption)
+                        .foregroundColor(.blue)
+                }
+                .padding(.vertical, 4)
+            }
+        } header: {
+            Text("Finition (optionnel)")
+        } footer: {
+            if finitionSelectionnee == nil {
+                Text("Ajoutez une finition pour mieux identifier votre leurre et optimiser son utilisation selon les conditions")
             }
         }
     }
@@ -536,6 +664,32 @@ struct LeurreFormView: View {
         Double(longueur.replacingOccurrences(of: ",", with: ".")) != nil
     }
     
+    /// 🔒 VALIDATION CRITIQUE : Cohérence entre type de leurre et technique de pêche
+    private func validerCoherenceTypePeche() -> Bool {
+        // Types exclusivement lancer (JAMAIS en traîne)
+        let typesLancerSeuls: [TypeLeurre] = [
+            .popper,
+            .stickbait,
+            .stickbaitFlottant,
+            .stickbaitCoulant,
+            .jigMetallique,
+            .jigStickbait,
+            .jigStickbaitCoulant,
+            .jigVibrant
+        ]
+        if typesLancerSeuls.contains(typeLeurre) && typePeche == .traine {
+            validationMessage = "❌ Un \(typeLeurre.displayName) ne peut être utilisé qu'au lancer, jamais en traîne.\n\nChangez le type de pêche en 'Lancer' ou choisissez un autre type de leurre."
+            showValidationError = true
+            return false
+        }
+        
+        // Types exclusivement traîne (JAMAIS au lancer)
+        // Note : Pour l'instant, tous les types peuvent potentiellement être traînés
+        // Mais on peut ajouter des restrictions si nécessaire
+        
+        return true
+    }
+    
     private func validerEtSauvegarder() {
         // Validation nom
         guard !nom.trimmingCharacters(in: .whitespaces).isEmpty else {
@@ -557,6 +711,11 @@ struct LeurreFormView: View {
             validationMessage = "La longueur doit être un nombre positif"
             showValidationError = true
             return
+        }
+        
+        // 🔒 VALIDATION CRITIQUE : Cohérence type/technique
+        guard validerCoherenceTypePeche() else {
+            return  // Message d'erreur déjà affiché
         }
         
         // Validation traîne (si applicable)
@@ -589,6 +748,11 @@ struct LeurreFormView: View {
         
         let couleurSec: Couleur? = hasCouleurSecondaire ? couleurSecondaire : nil
         
+        // 🆕 Préparer les techniques compatibles (seulement si activé)
+        let techniquesCompatiblesArray: [TypePeche]? = showTechniquesCompatibles ?
+            Array(typesPecheCompatibles).sorted(by: { $0.displayName < $1.displayName }) :
+            nil
+        
         switch mode {
         case .creation:
             // Créer nouveau leurre
@@ -601,10 +765,12 @@ struct LeurreFormView: View {
                 modele: modele.isEmpty ? nil : modele.trimmingCharacters(in: .whitespaces),
                 typeLeurre: typeLeurre,
                 typePeche: typePeche,
+                typesPecheCompatibles: techniquesCompatiblesArray,  // 🆕 Ajouter les techniques
                 longueur: longueurValue,
                 poids: poidsValue,
                 couleurPrincipale: couleurPrincipale,
                 couleurSecondaire: couleurSec,
+                finition: finitionSelectionnee,  // ✅ Inclure la finition
                 profondeurNageMin: profMinValue,
                 profondeurNageMax: profMaxValue,
                 vitesseTraineMin: vitMinValue,
@@ -629,10 +795,12 @@ struct LeurreFormView: View {
             leurreModifie.modele = modele.isEmpty ? nil : modele.trimmingCharacters(in: .whitespaces)
             leurreModifie.typeLeurre = typeLeurre
             leurreModifie.typePeche = typePeche
+            leurreModifie.typesPecheCompatibles = techniquesCompatiblesArray  // 🆕 Ajouter les techniques
             leurreModifie.longueur = longueurValue
             leurreModifie.poids = poidsValue
             leurreModifie.couleurPrincipale = couleurPrincipale
             leurreModifie.couleurSecondaire = couleurSec
+            leurreModifie.finition = finitionSelectionnee  // ✅ Inclure la finition
             leurreModifie.profondeurNageMin = profMinValue
             leurreModifie.profondeurNageMax = profMaxValue
             leurreModifie.vitesseTraineMin = vitMinValue

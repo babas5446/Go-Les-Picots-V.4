@@ -16,6 +16,7 @@ struct BoiteView: View {
     @State private var modeAffichage: ModeAffichage = .liste
     @State private var showingFiltres = false
     @State private var showingAjouterLeurre = false
+    @State private var showingParametres = false
     
     enum ModeAffichage {
         case liste
@@ -64,6 +65,15 @@ struct BoiteView: View {
         .navigationTitle("Ma Boîte à Leurres")
         .navigationBarTitleDisplayMode(.large)
         .toolbar {
+            // Bouton paramètres
+            ToolbarItem(placement: .navigationBarLeading) {
+                Button {
+                    showingParametres = true
+                } label: {
+                    Image(systemName: "gearshape")
+                }
+            }
+            
             // Bouton + pour ajouter rapidement
             ToolbarItem(placement: .primaryAction) {
                 Button {
@@ -93,6 +103,9 @@ struct BoiteView: View {
         }
         .sheet(isPresented: $showingFiltres) {
             FiltresView(viewModel: viewModel)
+        }
+        .sheet(isPresented: $showingParametres) {
+            ParametresAppView()
         }
         // ═══════════════════════════════════════════════════════════
         // MODIFICATION PHASE 2 : Utiliser LeurreFormView au lieu de AjouterLeurreView

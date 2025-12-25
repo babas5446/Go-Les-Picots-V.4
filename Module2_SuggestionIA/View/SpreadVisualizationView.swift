@@ -123,7 +123,7 @@ struct SpreadVisualizationView: View {
                     justification: configuration.justificationVitesse,
                     ajustements: configuration.ajustementsVitesse
                 )
-                .position(x: 80, y: 50)  // Coin supérieur gauche
+                .position(x: 80, y: 10)  // Coin supérieur gauche
                 .scaleEffect(animationProgress * 0.8)
                 .opacity(animationProgress)
             }
@@ -513,6 +513,7 @@ struct PositionDetailCard: View {
     let suggestion: SuggestionEngine.SuggestionResult
     let position: PositionSpread
     @State private var isExpanded = false
+    @StateObject private var viewModel = LeureViewModel()
     
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -575,6 +576,17 @@ struct PositionDetailCard: View {
             if isExpanded {
                 VStack(alignment: .leading, spacing: 8) {
                     Divider()
+                    
+                    // 📸 PHOTO DU LEURRE (si disponible)
+                    if let image = viewModel.chargerPhoto(pourLeurre: suggestion.leurre) {
+                        Image(uiImage: image)
+                            .resizable()
+                            .scaledToFit()
+                            .frame(maxHeight: 200)
+                            .cornerRadius(12)
+                            .shadow(color: Color.black.opacity(0.1), radius: 4, x: 0, y: 2)
+                            .padding(.bottom, 8)
+                    }
                     
                     HStack {
                         Label("\(suggestion.distanceSpread ?? 0)m", systemImage: "arrow.right")
