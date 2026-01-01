@@ -41,7 +41,25 @@ struct Leurre: Identifiable, Codable, Hashable {
     var finition: Finition?                  // Facultatif
     
     // Type de nage
-        var typeDeNage: TypeDeNage?
+    /// Types de nage supportés par le leurre (multi-sélection)
+    /// L'ordre des types a une importance : le premier est considéré comme le type principal
+    var typesDeNage: [TypeDeNage]?
+
+    /// Type de nage principal (compatibilité descendante)
+    /// - Note: Propriété dépréciée. Utilisez `typesDeNage` pour la multi-sélection
+    @available(*, deprecated, message: "Utilisez typesDeNage à la place")
+    var typeDeNage: TypeDeNage? {
+        get {
+            typesDeNage?.first
+        }
+        set {
+            if let newValue = newValue {
+                typesDeNage = [newValue]
+            } else {
+                typesDeNage = nil
+            }
+        }
+    }
     
     // Conditionnel : SI typePeche == .traine
     var profondeurNageMin: Double?           // mètres
@@ -115,11 +133,13 @@ struct Leurre: Identifiable, Codable, Hashable {
         case quantite
         case dateAjout
         
+        case typeDeNage = "type_de_nage"
+        case typesDeNage = "types_de_nage"
+        
         // Champs supplémentaires du JSON (ignorés pour l'instant)
         case typeTete
         case actionNage
         case vitesseOptimale
-        case typeDeNage
     }
     
     // MARK: - Custom Decodable
@@ -169,9 +189,7 @@ struct Leurre: Identifiable, Codable, Hashable {
         couleurSecondaireCustom = try container.decodeIfPresent(CouleurCustom.self, forKey: .couleurSecondaireCustom)
         
         finition = try container.decodeIfPresent(Finition.self, forKey: .finition)
-        
-        typeDeNage = try container.decodeIfPresent(TypeDeNage.self, forKey: .typeDeNage)
-        
+                
         profondeurNageMin = try container.decodeIfPresent(Double.self, forKey: .profondeurNageMin)
         profondeurNageMax = try container.decodeIfPresent(Double.self, forKey: .profondeurNageMax)
         vitesseTraineMin = try container.decodeIfPresent(Double.self, forKey: .vitesseTraineMin)
@@ -190,6 +208,22 @@ struct Leurre: Identifiable, Codable, Hashable {
         isComputed = try container.decodeIfPresent(Bool.self, forKey: .isComputed) ?? false
         quantite = try container.decodeIfPresent(Int.self, forKey: .quantite) ?? 1
         dateAjout = try container.decodeIfPresent(Date.self, forKey: .dateAjout)
+        
+        typesDeNage = try container.decodeIfPresent([TypeDeNage].self, forKey: .typesDeNage)
+
+        // Migration automatique typeDeNage → typesDeNage
+        if typesDeNage == nil {
+            if let oldTypeDeNage = try? container.decodeIfPresent(TypeDeNage.self, forKey: .typeDeNage) {
+                typesDeNage = [oldTypeDeNage]
+            }
+        }
+        
+        // Migration automatique typeDeNage → typesDeNage
+        if typesDeNage == nil {
+            if let oldTypeDeNage = try? container.decodeIfPresent(TypeDeNage.self, forKey: .typeDeNage) {
+                typesDeNage = [oldTypeDeNage]
+            }
+        }
     }
     
     // MARK: - Custom Encodable
@@ -233,6 +267,15 @@ struct Leurre: Identifiable, Codable, Hashable {
         try container.encode(isComputed, forKey: .isComputed)
         try container.encode(quantite, forKey: .quantite)
         try container.encodeIfPresent(dateAjout, forKey: .dateAjout)
+        
+        // Encoder les deux champs pour compatibilité totale
+        try container.encodeIfPresent(typesDeNage, forKey: .typesDeNage)
+
+        // Encoder aussi l'ancien champ pour rétrocompatibilité
+        if let premier = typesDeNage?.first {
+            try container.encode(premier, forKey: .typeDeNage)
+        }
+        
     }
     
     // MARK: - Initialisation pour nouveau leurre (saisie utilisateur)
@@ -252,7 +295,7 @@ struct Leurre: Identifiable, Codable, Hashable {
         couleurSecondaire: Couleur? = nil,
         couleurSecondaireCustom: CouleurCustom? = nil,
         finition: Finition? = nil,
-        typeDeNage: TypeDeNage? = nil,
+        typesDeNage: [TypeDeNage]? = nil,  // ✅ Déjà optionnel, c'est bon
         profondeurNageMin: Double? = nil,
         profondeurNageMax: Double? = nil,
         vitesseTraineMin: Double? = nil,
@@ -275,7 +318,11 @@ struct Leurre: Identifiable, Codable, Hashable {
         self.couleurSecondaire = couleurSecondaire
         self.couleurSecondaireCustom = couleurSecondaireCustom
         self.finition = finition
-        self.typeDeNage = typeDeNage
+        self.finition = finition
+
+        // Initialiser DIRECTEMENT typesDeNage depuis le paramètre
+        self.typesDeNage = typesDeNage
+        
         self.profondeurNageMin = profondeurNageMin
         self.profondeurNageMax = profondeurNageMax
         self.vitesseTraineMin = vitesseTraineMin

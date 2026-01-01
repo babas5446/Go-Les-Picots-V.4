@@ -93,11 +93,12 @@ struct LeurreFormView: View {
     @State private var hasCouleurSecondaire: Bool = false
     @State private var finitionSelectionnee: Finition? = nil
     
-    // Type de nage
-    @State private var typeDeNage: TypeDeNage? = nil
+    // Type de nage (multi-sélection, max 3)
+    @State private var typesDeNage: [TypeDeNage] = []
     @State private var showWobblingChoice = false
     @State private var showJiggingChoice = false
-    @State private var showTypeDeNagePicker = false  // ✅ AJOUTER CETTE LIGNE
+    @State private var showTypeDeNagePicker = false
+    @State private var showTypeDeNageDescription: TypeDeNage? = nil  // 🆕 Pour le modal
     
     // Traîne (conditionnel)
     @State private var profondeurMin: String = ""
@@ -163,7 +164,7 @@ struct LeurreFormView: View {
             _couleurSecondaireCustom = State(initialValue: leurre.couleurSecondaireCustom)  // 🆕
             _hasCouleurSecondaire = State(initialValue: leurre.couleurSecondaire != nil || leurre.couleurSecondaireCustom != nil)
             _finitionSelectionnee = State(initialValue: leurre.finition)  // ✅ Initialiser la finition
-            _typeDeNage = State(initialValue: leurre.typeDeNage)
+            _typesDeNage = State(initialValue: leurre.typesDeNage ?? [])
             _profondeurMin = State(initialValue: leurre.profondeurNageMin.map { String(format: "%.1f", $0) } ?? "")
             _profondeurMax = State(initialValue: leurre.profondeurNageMax.map { String(format: "%.1f", $0) } ?? "")
             _vitesseMin = State(initialValue: leurre.vitesseTraineMin.map { String(format: "%.0f", $0) } ?? "")
@@ -212,21 +213,21 @@ struct LeurreFormView: View {
                 // Section Finition
                 sectionFinition
                 
-                // Section Type de nage
-                Section(header: Text("Type de nage (optionnel)")) {
-                    // ✅ Affichage custom avec bouton
-                    HStack {
-                        Text("Type de nage")
-                            .foregroundColor(.primary)
-                        
-                        Spacer()
-                        
-                        Button {
-                            showTypeDeNagePicker = true
-                        } label: {
+                // Section Types de nage (multi-sélection)
+                Section(header: Text("Types de nage (optionnel)")) {
+                    // Bouton pour ouvrir le picker
+                    Button {
+                        showTypeDeNagePicker = true
+                    } label: {
+                        HStack {
+                            Text("Types de nage")
+                                .foregroundColor(.primary)
+                            
+                            Spacer()
+                            
                             HStack(spacing: 4) {
-                                Text(typeDeNage?.rawValue ?? "Aucun")
-                                    .foregroundColor(typeDeNage == nil ? .secondary : .primary)
+                                Text(typesDeNage.isEmpty ? "Aucun" : "\(typesDeNage.count)/3")
+                                    .foregroundColor(typesDeNage.isEmpty ? .secondary : Color(hex: "0277BD"))
                                 Image(systemName: "chevron.up.chevron.down")
                                     .font(.caption2)
                                     .foregroundColor(.secondary)
@@ -234,21 +235,16 @@ struct LeurreFormView: View {
                         }
                     }
                     
-                    if let type = typeDeNage {
-                        VStack(alignment: .leading, spacing: 8) {
-                            Text(type.categorie)
-                                .font(.caption)
-                                .foregroundColor(.secondary)
-                            
-                            Text(type.description)
-                                .font(.subheadline)
-                                .foregroundColor(.primary)
-                            
-                            Text("💡 " + type.conditionsIdeales)
-                                .font(.caption)
-                                .foregroundColor(.blue)
+                    // Badges des types sélectionnés
+                    if !typesDeNage.isEmpty {
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(spacing: 8) {
+                                ForEach(typesDeNage, id: \.self) { type in
+                                    typeBadge(for: type)
+                                }
+                            }
+                            .padding(.vertical, 4)
                         }
-                        .padding(.vertical, 4)
                     }
                 }
                 
@@ -297,6 +293,7 @@ struct LeurreFormView: View {
             } message: {
                 Text("Collez l'URL d'une image")
             }
+            
             // ═══════════════════════════════════════════════════════════
             // PHASE 1 : Alert import URL
             // ═══════════════════════════════════════════════════════════
@@ -325,18 +322,17 @@ struct LeurreFormView: View {
             }
             // ✅ AJOUTER CES 2 SHEETS ICI
             .sheet(isPresented: $showWobblingChoice) {
-                WobblingChoiceSheet(selectedType: $typeDeNage)
+                WobblingChoiceSheet(selectedTypes: $typesDeNage)
             }
             .sheet(isPresented: $showTypeDeNagePicker) {
                 TypeDeNagePickerSheet(
-                    selectedType: $typeDeNage,
+                    selectedTypes: $typesDeNage,
                     onWobblingTapped: {
                         showTypeDeNagePicker = false
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                             showWobblingChoice = true
                         }
                     },
-                    // ✅ AJOUTER CE PARAMÈTRE
                     onJiggingTapped: {
                         showTypeDeNagePicker = false
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
@@ -345,11 +341,51 @@ struct LeurreFormView: View {
                     }
                 )
             }
-            // ✅ AJOUTER CETTE NOUVELLE SHEET
             .sheet(isPresented: $showJiggingChoice) {
-                JiggingChoiceSheet(selectedType: $typeDeNage)
+                JiggingChoiceSheet(selectedTypes: $typesDeNage)
+            }
+            .sheet(isPresented: Binding(
+                get: { showTypeDeNageDescription != nil },
+                set: { if !$0 { showTypeDeNageDescription = nil } }
+            )) {
+                if let type = showTypeDeNageDescription {
+                    TypeDeNageDescriptionModal(typeDeNage: type)
+                }
             }
         }
+    }
+    
+    // MARK: - Type Badge avec description
+
+    private func typeBadge(for type: TypeDeNage) -> some View {
+        HStack(spacing: 6) {
+            // Partie cliquable pour la description
+            Button {
+                showTypeDeNageDescription = type
+            } label: {
+                Text(type.rawValue)
+                    .font(.subheadline)
+                    .foregroundColor(Color(hex: "0277BD"))
+                    .padding(.leading, 12)
+                    .padding(.vertical, 6)
+            }
+            
+            // Bouton × pour supprimer
+            Button {
+                if let index = typesDeNage.firstIndex(of: type) {
+                    withAnimation {
+                        typesDeNage.remove(at: index)
+                    }
+                }
+            } label: {
+                Image(systemName: "xmark.circle.fill")
+                    .font(.caption)
+                    .foregroundColor(.gray)
+            }
+            .padding(.trailing, 8)
+        }
+        .background(Color(hex: "E3F2FD"))
+        .cornerRadius(16)
     }
     
     // MARK: - Section Import URL (Phase 1)
@@ -883,7 +919,7 @@ struct LeurreFormView: View {
                 couleurSecondaire: couleurSec,
                 couleurSecondaireCustom: hasCouleurSecondaire ? couleurSecondaireCustom : nil,  // 🆕
                 finition: finitionSelectionnee,  // ✅ Inclure la finition
-                typeDeNage: typeDeNage,
+                typesDeNage: typesDeNage.isEmpty ? nil : typesDeNage,  // ✅ Passer l'array complet
                 profondeurNageMin: profMinValue,
                 profondeurNageMax: profMaxValue,
                 vitesseTraineMin: vitMinValue,
@@ -917,7 +953,7 @@ struct LeurreFormView: View {
             leurreModifie.couleurSecondaire = couleurSec
             leurreModifie.couleurSecondaireCustom = hasCouleurSecondaire ? couleurSecondaireCustom : nil  // 🆕
             leurreModifie.finition = finitionSelectionnee  // ✅ Inclure la finition
-            leurreModifie.typeDeNage = typeDeNage
+            leurreModifie.typesDeNage = typesDeNage.isEmpty ? nil : typesDeNage  // ✅ DOIT ASSIGNER L'ARRAY COMPLET
             leurreModifie.profondeurNageMin = profMinValue
             leurreModifie.profondeurNageMax = profMaxValue
             leurreModifie.vitesseTraineMin = vitMinValue
@@ -1151,7 +1187,7 @@ struct LeurreFormView: View {
             // 2. Le type n'est pas déjà sélectionné
             // 3. L'utilisateur n'a pas déjà ignoré la suggestion pour ce texte
             if let firstDetected = filteredDetected.first,
-               typeDeNage != firstDetected,
+               !typesDeNage.contains(firstDetected),
                !hasIgnoredSuggestion {
                 detectedTypes = filteredDetected
                 withAnimation(.easeInOut(duration: 0.3)) {
@@ -1188,7 +1224,9 @@ struct LeurreFormView: View {
                 
                 // Bouton Ajouter
                 Button {
-                    typeDeNage = type
+                    if !typesDeNage.contains(type) && typesDeNage.count < 3 {
+                        typesDeNage.append(type)
+                    }
                     withAnimation {
                         showTypeDetectionSuggestion = false
                         hasIgnoredSuggestion = false

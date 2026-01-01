@@ -11,7 +11,7 @@ import SwiftUI
 
 struct WobblingChoiceSheet: View {
     @Environment(\.dismiss) private var dismiss
-    @Binding var selectedType: TypeDeNage?
+    @Binding var selectedTypes: [TypeDeNage]
     
     var body: some View {
         NavigationView {
@@ -108,147 +108,147 @@ struct WobblingChoiceSheet: View {
     // MARK: - Carte Wobbling Large
     
     private var wobblingLargeCard: some View {
-        Button(action: {
-            selectedType = .wobblingLarge
-            dismiss()
-        }) {
-            VStack(alignment: .leading, spacing: 12) {
-                // Titre
-                HStack {
-                    Image(systemName: "water.waves")
-                        .foregroundColor(Color(hex: "0277BD"))
-                        .font(.title2)
-                    
-                    Text("Wobbling Large")
-                        .font(.title3)
-                        .fontWeight(.bold)
-                        .foregroundColor(.primary)
-                    
-                    Spacer()
-                    
-                    Image(systemName: "chevron.right")
-                        .foregroundColor(.gray)
-                }
+        VStack(alignment: .leading, spacing: 12) {
+            // Titre
+            HStack {
+                Image(systemName: "water.waves")
+                    .foregroundColor(Color(hex: "0277BD"))
+                    .font(.title2)
                 
-                // Caractéristiques techniques
-                VStack(alignment: .leading, spacing: 6) {
-                    CharacteristicRow(icon: "waveform", text: "Amplitude élevée, fréquence basse")
-                    CharacteristicRow(icon: "arrow.left.and.right", text: "Balayage large gauche-droite")
-                    CharacteristicRow(icon: "speaker.wave.3.fill", text: "Déplace beaucoup d'eau")
-                }
-                .padding(.leading, 4)
+                Text("Wobbling Large")
+                    .font(.title3)
+                    .fontWeight(.bold)
+                    .foregroundColor(.primary)
                 
-                Divider()
+                Spacer()
                 
-                // Description
-                Text(TypeDeNage.wobblingLarge.description)
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
-                    .fixedSize(horizontal: false, vertical: true)
+                Image(systemName: "chevron.right")
+                    .foregroundColor(.gray)
+            }
+            
+            // Caractéristiques techniques
+            VStack(alignment: .leading, spacing: 6) {
+                CharacteristicRow(icon: "waveform", text: "Amplitude élevée, fréquence basse")
+                CharacteristicRow(icon: "arrow.left.and.right", text: "Balayage large gauche-droite")
+                CharacteristicRow(icon: "speaker.wave.3.fill", text: "Déplace beaucoup d'eau")
+            }
+            .padding(.leading, 4)
+            
+            Divider()
+            
+            // Description
+            Text(TypeDeNage.wobblingLarge.description)
+                .font(.subheadline)
+                .foregroundColor(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
+            
+            Divider()
+            
+            // Conditions idéales
+            HStack(alignment: .top, spacing: 8) {
+                Image(systemName: "checkmark.circle.fill")
+                    .foregroundColor(.green)
+                    .font(.caption)
                 
-                Divider()
-                
-                // Conditions idéales
-                HStack(alignment: .top, spacing: 8) {
-                    Image(systemName: "checkmark.circle.fill")
-                        .foregroundColor(.green)
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Conditions idéales")
                         .font(.caption)
+                        .foregroundColor(.gray)
+                        .textCase(.uppercase)
                     
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("Conditions idéales")
-                            .font(.caption)
-                            .foregroundColor(.gray)
-                            .textCase(.uppercase)
-                        
-                        Text(TypeDeNage.wobblingLarge.conditionsIdeales)
-                            .font(.caption)
-                            .foregroundColor(Color(hex: "0277BD"))
-                    }
+                    Text(TypeDeNage.wobblingLarge.conditionsIdeales)
+                        .font(.caption)
+                        .foregroundColor(Color(hex: "0277BD"))
                 }
             }
-            .padding()
-            .background(Color.white)
-            .cornerRadius(12)
-            .overlay(
-                RoundedRectangle(cornerRadius: 12)
-                    .stroke(Color(hex: "0277BD"), lineWidth: 2)
-            )
-            .shadow(color: Color.black.opacity(0.1), radius: 4, x: 0, y: 2)
         }
-        .buttonStyle(PlainButtonStyle())
+        .padding()
+        .background(Color.white)
+        .cornerRadius(12)
+        .overlay(
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(Color(hex: "0277BD"), lineWidth: 2)
+        )
+        .shadow(color: Color.black.opacity(0.1), radius: 4, x: 0, y: 2)
+        .onTapGesture(count: 2) {
+            if !selectedTypes.contains(.wobblingLarge) && selectedTypes.count < 3 {
+                selectedTypes.append(.wobblingLarge)
+            }
+            dismiss()
+        }
     }
     
     // MARK: - Carte Wobbling Serré
     
     private var wobblingSerréCard: some View {
-        Button(action: {
-            selectedType = .wobblingSerré
-            dismiss()
-        }) {
-            VStack(alignment: .leading, spacing: 12) {
-                // Titre
-                HStack {
-                    Image(systemName: "water.waves")
-                        .foregroundColor(Color(hex: "FFBC42"))
-                        .font(.title2)
-                    
-                    Text("Wobbling Serré")
-                        .font(.title3)
-                        .fontWeight(.bold)
-                        .foregroundColor(.primary)
-                    
-                    Spacer()
-                    
-                    Image(systemName: "chevron.right")
-                        .foregroundColor(.gray)
-                }
+        VStack(alignment: .leading, spacing: 12) {
+            // Titre
+            HStack {
+                Image(systemName: "water.waves")
+                    .foregroundColor(Color(hex: "FFBC42"))
+                    .font(.title2)
                 
-                // Caractéristiques techniques
-                VStack(alignment: .leading, spacing: 6) {
-                    CharacteristicRow(icon: "waveform.path", text: "Amplitude faible, fréquence élevée")
-                    CharacteristicRow(icon: "arrow.up.and.down", text: "Tremblement plutôt qu'ondulation")
-                    CharacteristicRow(icon: "line.horizontal.3.decrease", text: "Signature discrète mais continue")
-                }
-                .padding(.leading, 4)
+                Text("Wobbling Serré")
+                    .font(.title3)
+                    .fontWeight(.bold)
+                    .foregroundColor(.primary)
                 
-                Divider()
+                Spacer()
                 
-                // Description
-                Text(TypeDeNage.wobblingSerré.description)
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
-                    .fixedSize(horizontal: false, vertical: true)
+                Image(systemName: "chevron.right")
+                    .foregroundColor(.gray)
+            }
+            
+            // Caractéristiques techniques
+            VStack(alignment: .leading, spacing: 6) {
+                CharacteristicRow(icon: "waveform.path", text: "Amplitude faible, fréquence élevée")
+                CharacteristicRow(icon: "arrow.up.and.down", text: "Tremblement plutôt qu'ondulation")
+                CharacteristicRow(icon: "line.horizontal.3.decrease", text: "Signature discrète mais continue")
+            }
+            .padding(.leading, 4)
+            
+            Divider()
+            
+            // Description
+            Text(TypeDeNage.wobblingSerré.description)
+                .font(.subheadline)
+                .foregroundColor(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
+            
+            Divider()
+            
+            // Conditions idéales
+            HStack(alignment: .top, spacing: 8) {
+                Image(systemName: "checkmark.circle.fill")
+                    .foregroundColor(.green)
+                    .font(.caption)
                 
-                Divider()
-                
-                // Conditions idéales
-                HStack(alignment: .top, spacing: 8) {
-                    Image(systemName: "checkmark.circle.fill")
-                        .foregroundColor(.green)
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Conditions idéales")
                         .font(.caption)
+                        .foregroundColor(.gray)
+                        .textCase(.uppercase)
                     
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("Conditions idéales")
-                            .font(.caption)
-                            .foregroundColor(.gray)
-                            .textCase(.uppercase)
-                        
-                        Text(TypeDeNage.wobblingSerré.conditionsIdeales)
-                            .font(.caption)
-                            .foregroundColor(Color(hex: "FFBC42"))
-                    }
+                    Text(TypeDeNage.wobblingSerré.conditionsIdeales)
+                        .font(.caption)
+                        .foregroundColor(Color(hex: "FFBC42"))
                 }
             }
-            .padding()
-            .background(Color.white)
-            .cornerRadius(12)
-            .overlay(
-                RoundedRectangle(cornerRadius: 12)
-                    .stroke(Color(hex: "FFBC42"), lineWidth: 2)
-            )
-            .shadow(color: Color.black.opacity(0.1), radius: 4, x: 0, y: 2)
         }
-        .buttonStyle(PlainButtonStyle())
+        .padding()
+        .background(Color.white)
+        .cornerRadius(12)
+        .overlay(
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(Color(hex: "FFBC42"), lineWidth: 2)
+        )
+        .shadow(color: Color.black.opacity(0.1), radius: 4, x: 0, y: 2)
+        .onTapGesture(count: 2) {
+            if !selectedTypes.contains(.wobblingSerré) && selectedTypes.count < 3 {
+                selectedTypes.append(.wobblingSerré)
+            }
+            dismiss()
+        }
     }
 }
 
@@ -276,6 +276,6 @@ struct CharacteristicRow: View {
 
 struct WobblingChoiceSheet_Previews: PreviewProvider {
     static var previews: some View {
-        WobblingChoiceSheet(selectedType: .constant(nil))
+        WobblingChoiceSheet(selectedTypes: .constant([]))
     }
 }

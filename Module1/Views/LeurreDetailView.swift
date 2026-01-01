@@ -104,6 +104,7 @@ struct LeurreDetailView: View {
         .sheet(isPresented: $showingDupliquer) {
             LeurreFormView(viewModel: viewModel, mode: .duplication(leurre))
         }
+        
         .alert("Supprimer ce leurre ?", isPresented: $showingSupprimer) {
             Button("Annuler", role: .cancel) { }
             Button("Supprimer", role: .destructive) {

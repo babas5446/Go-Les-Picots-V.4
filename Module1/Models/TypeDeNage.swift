@@ -21,7 +21,6 @@ enum TypeDeNage: String, CaseIterable, Codable {
     case slashing = "Slashing"
     case flutter = "Flutter"
     case falling = "Falling"
-    case slowPitch = "Slow pitch / slow jigging"
     case jigging = "Jigging"  // ← Déclencheur de choix
     case slowJigging = "Slow jigging"
     case fastJigging = "Fast jigging"
@@ -74,9 +73,6 @@ enum TypeDeNage: String, CaseIterable, Codable {
         case .falling:
             return "Chute libre ralentie avec léger planage. Trajectoire verticale naturelle sans rotation excessive. Descente contrôlée imitant un poisson mort ou mourant. Action passive mais efficace."
             
-        case .slowPitch:
-            return "Mouvements verticaux lents et contrôlés en jigging. Animation subtile en profondeur avec relâchements progressifs. Papillonnement discret. Efficace sur poissons méfiants ou peu actifs."
-            
         case .jigging:
             return "Technique verticale avec jig métallique. Choisissez la variante adaptée à l'activité des poissons (fast pour actifs, slow pour calés)."
             
@@ -116,7 +112,7 @@ enum TypeDeNage: String, CaseIterable, Codable {
             return "I. Nages linéaires continues"
         case .darting, .walkTheDog, .slashing:
             return "II. Nages erratiques et désordonnées"
-        case .flutter, .falling, .slowPitch, .jigging, .slowJigging, .fastJigging:
+        case .flutter, .falling, .jigging, .slowJigging, .fastJigging:
             return "III. Nages verticales et semi-verticales"
         case .paddleSwimming, .vibration, .thumping:
             return "IV. Nages ondulantes et vibratoires"
@@ -162,9 +158,6 @@ enum TypeDeNage: String, CaseIterable, Codable {
             
         case .falling:
             return "Pêche profonde >100m, chasses sur bancs de poissons-fourrage, verticale lente"
-            
-        case .slowPitch:
-            return "Pêche fine, poissons méfiants, profondeur variable 50-200m, animation lente et contrôlée, forte pression de pêche"
             
         case .jigging:
             return "Technique verticale - choisir fast (poissons actifs) ou slow (poissons calés)"
@@ -222,8 +215,6 @@ enum TypeDeNage: String, CaseIterable, Codable {
         case .flutter:
             return "Jigging vertical, descente libre, relâcher complet"
         case .falling:
-            return "Jigging profond, chute contrôlée lente"
-        case .slowPitch:
             return "Slow jigging, relâchements progressifs, pauses longues"
         case .jigging:
             return "Jigging vertical - voir variantes Slow/Fast"

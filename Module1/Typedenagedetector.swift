@@ -57,8 +57,6 @@ struct TypeDeNageDetector {
         "jigging lent": .slowJigging,
         "jig lent": .slowJigging,
         
-        "slow pitch": .slowPitch,
-        
         "jigging": .jigging,  // Générique (après les spécifiques)
         "jig": .jigging,
         
