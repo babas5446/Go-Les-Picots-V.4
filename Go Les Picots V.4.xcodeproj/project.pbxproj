@@ -11,6 +11,7 @@
 		61045D782F0512000033CD9F /* TypeDeNageDescriptionModal.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61045D772F0511FA0033CD9F /* TypeDeNageDescriptionModal.swift */; };
 		61045D7A2F05F7B30033CD9F /* SlowPitchTechniqueSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61045D792F05F7A40033CD9F /* SlowPitchTechniqueSheet.swift */; };
 		61045D7C2F05F7EC0033CD9F /* FastPitchTechniqueSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61045D7B2F05F7E90033CD9F /* FastPitchTechniqueSheet.swift */; };
+		61045D7E2F06218A0033CD9F /* TypeDeNageSuggestionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61045D7D2F06216B0033CD9F /* TypeDeNageSuggestionView.swift */; };
 		61263A542EE95DC400BBF0A8 /* LeurreFormView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61263A532EE95DC400BBF0A8 /* LeurreFormView.swift */; };
 		613F7A082F0238E100DA3053 /* TypeDeNage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 613F7A072F0238CB00DA3053 /* TypeDeNage.swift */; };
 		613F7A0A2F0291FD00DA3053 /* Wobblingchoicesheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 613F7A092F0291D200DA3053 /* Wobblingchoicesheet.swift */; };
@@ -66,6 +67,7 @@
 		61045D772F0511FA0033CD9F /* TypeDeNageDescriptionModal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TypeDeNageDescriptionModal.swift; sourceTree = "<group>"; };
 		61045D792F05F7A40033CD9F /* SlowPitchTechniqueSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SlowPitchTechniqueSheet.swift; sourceTree = "<group>"; };
 		61045D7B2F05F7E90033CD9F /* FastPitchTechniqueSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FastPitchTechniqueSheet.swift; sourceTree = "<group>"; };
+		61045D7D2F06216B0033CD9F /* TypeDeNageSuggestionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TypeDeNageSuggestionView.swift; sourceTree = "<group>"; };
 		61263A532EE95DC400BBF0A8 /* LeurreFormView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LeurreFormView.swift; sourceTree = "<group>"; };
 		613F7A072F0238CB00DA3053 /* TypeDeNage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TypeDeNage.swift; sourceTree = "<group>"; };
 		613F7A092F0291D200DA3053 /* Wobblingchoicesheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Wobblingchoicesheet.swift; sourceTree = "<group>"; };
@@ -217,6 +219,7 @@
 		6193EA462EE142F1000BE2F6 /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				61045D7D2F06216B0033CD9F /* TypeDeNageSuggestionView.swift */,
 				61045D7B2F05F7E90033CD9F /* FastPitchTechniqueSheet.swift */,
 				61045D792F05F7A40033CD9F /* SlowPitchTechniqueSheet.swift */,
 				61045D772F0511FA0033CD9F /* TypeDeNageDescriptionModal.swift */,
@@ -449,6 +452,7 @@
 				6193EA842EE25312000BE2F6 /* SuggestionResultView.swift in Sources */,
 				613F7A0A2F0291FD00DA3053 /* Wobblingchoicesheet.swift in Sources */,
 				613F7A0C2F03280600DA3053 /* TypeDeNagePickerSheet.swift in Sources */,
+				61045D7E2F06218A0033CD9F /* TypeDeNageSuggestionView.swift in Sources */,
 				613F7A082F0238E100DA3053 /* TypeDeNage.swift in Sources */,
 				617DD14E2EF54310002C82F1 /* AssetsDiagnosticView.swift in Sources */,
 				61C5FC232EFA87B30030C95D /* NoteAnalysisService.swift in Sources */,

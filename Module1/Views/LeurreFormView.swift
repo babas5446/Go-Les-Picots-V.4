@@ -1152,95 +1152,69 @@ struct LeurreFormView: View {
         }
         return principale.contrasteNaturel
     }
-    // MARK: - Détection Type de Nage
+    // MARK: - Détection Type de Nage (multi-sélections)
         
         /// Détecte automatiquement les types de nage mentionnés dans les notes
-        private func detectTypeDeNage(in text: String) {
-            // Réinitialiser si le texte est vide
-            guard !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
-                withAnimation {
-                    showTypeDetectionSuggestion = false
-                    detectedTypes = []
-                    hasIgnoredSuggestion = false
-                }
-                return
+    private func detectTypeDeNage(in text: String) {
+        guard !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+            withAnimation {
+                showTypeDetectionSuggestion = false
+                detectedTypes = []
+                hasIgnoredSuggestion = false
             }
-            
-            // Détecter les types
-            let detected = TypeDeNageDetector.detect(in: text)
-            
-            // Filtrer intelligemment les déclencheurs
-            let filteredDetected: [TypeDeNage]
-            if detected.contains(.fastJigging) || detected.contains(.slowJigging) {
-                // Si on a une variante spécifique de jigging, ne pas suggérer le générique
-                filteredDetected = detected.filter { $0 != .jigging }
-            } else if detected.contains(.wobblingLarge) || detected.contains(.wobblingSerré) {
-                // Si on a une variante spécifique de wobbling, ne pas suggérer le générique
-                filteredDetected = detected.filter { $0 != .wobbling }
-            } else {
-                // Sinon, garder tout (y compris wobbling et jigging)
-                filteredDetected = detected
-            }
-            
-            // Ne suggérer que si :
-            // 1. Un type est détecté
-            // 2. Le type n'est pas déjà sélectionné
-            // 3. L'utilisateur n'a pas déjà ignoré la suggestion pour ce texte
-            if let firstDetected = filteredDetected.first,
-               !typesDeNage.contains(firstDetected),
-               !hasIgnoredSuggestion {
-                detectedTypes = filteredDetected
-                withAnimation(.easeInOut(duration: 0.3)) {
-                    showTypeDetectionSuggestion = true
-                }
-            } else {
-                withAnimation(.easeInOut(duration: 0.2)) {
-                    showTypeDetectionSuggestion = false
-                }
-            }
+            return
         }
         
-        /// Badge de suggestion de type de nage détecté
-        private func typeDetectionBadge(for type: TypeDeNage) -> some View {
+        // Détecter TOUS les types mentionnés (pas juste le premier)
+        let allDetected = TypeDeNageDetector.detect(in: text)
+        
+        // Filtrer pour ne garder QUE les types non encore sélectionnés
+        let newDetections = allDetected.filter { !typesDeNage.contains($0) }
+        
+        // Afficher suggestion si nouveaux types détectés ET espace disponible
+        if !newDetections.isEmpty && typesDeNage.count < 3 && !hasIgnoredSuggestion {
+            // Limiter aux types qui rentrent (max 3 au total)
+            let available = 3 - typesDeNage.count
+            detectedTypes = Array(newDetections.prefix(available))
+            
+            withAnimation(.easeInOut(duration: 0.3)) {
+                showTypeDetectionSuggestion = true
+            }
+        } else {
+            withAnimation(.easeInOut(duration: 0.2)) {
+                showTypeDetectionSuggestion = false
+            }
+        }
+    }
+        
+    /// Badge de suggestion de types de nage détectés (multi-sélection)
+    private func typeDetectionBadge(for type: TypeDeNage) -> some View {
+        VStack(spacing: 12) {
+            // En-tête
             HStack(spacing: 12) {
-                // Icône
                 Image(systemName: "lightbulb.fill")
                     .foregroundColor(Color(hex: "FFBC42"))
                     .font(.title3)
                 
-                // Texte
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("Type de nage détecté")
+                    Text(detectedTypes.count > 1 ? "Types de nage détectés" : "Type de nage détecté")
                         .font(.caption)
                         .foregroundColor(.secondary)
                     
-                    Text(type.rawValue)
-                        .font(.subheadline)
-                        .fontWeight(.semibold)
-                        .foregroundColor(.primary)
+                    if detectedTypes.count > 1 {
+                        Text("\(detectedTypes.count) suggestions")
+                            .font(.subheadline)
+                            .fontWeight(.semibold)
+                            .foregroundColor(.primary)
+                    } else if let firstType = detectedTypes.first {
+                        Text(firstType.rawValue)
+                            .font(.subheadline)
+                            .fontWeight(.semibold)
+                            .foregroundColor(.primary)
+                    }
                 }
                 
                 Spacer()
-                
-                // Bouton Ajouter
-                Button {
-                    if !typesDeNage.contains(type) && typesDeNage.count < 3 {
-                        typesDeNage.append(type)
-                    }
-                    withAnimation {
-                        showTypeDetectionSuggestion = false
-                        hasIgnoredSuggestion = false
-                    }
-                } label: {
-                    Text("Ajouter")
-                        .font(.subheadline)
-                        .fontWeight(.semibold)
-                        .foregroundColor(.white)
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 8)
-                        .background(Color(hex: "0277BD"))
-                        .cornerRadius(8)
-                }
                 
                 // Bouton Ignorer
                 Button {
@@ -1254,11 +1228,102 @@ struct LeurreFormView: View {
                         .font(.title3)
                 }
             }
-            .padding()
-            .background(Color(hex: "FFF9E6"))
-            .cornerRadius(12)
-            .transition(.scale.combined(with: .opacity))
+            
+            // Liste des types détectés
+            if detectedTypes.count > 1 {
+                VStack(spacing: 8) {
+                    ForEach(detectedTypes, id: \.self) { detectedType in
+                        HStack(spacing: 12) {
+                            Text(detectedType.rawValue)
+                                .font(.subheadline)
+                                .foregroundColor(.primary)
+                            
+                            Spacer()
+                            
+                            Button {
+                                if typesDeNage.count < 3 {
+                                    typesDeNage.append(detectedType)
+                                    // Retirer de la liste
+                                    if let index = detectedTypes.firstIndex(of: detectedType) {
+                                        detectedTypes.remove(at: index)
+                                    }
+                                    // Masquer si plus rien
+                                    if detectedTypes.isEmpty {
+                                        withAnimation {
+                                            showTypeDetectionSuggestion = false
+                                        }
+                                    }
+                                }
+                            } label: {
+                                HStack(spacing: 4) {
+                                    Image(systemName: "plus.circle.fill")
+                                    Text("Ajouter")
+                                }
+                                .font(.caption)
+                                .fontWeight(.semibold)
+                                .foregroundColor(.white)
+                                .padding(.horizontal, 12)
+                                .padding(.vertical, 6)
+                                .background(Color(hex: "0277BD"))
+                                .cornerRadius(8)
+                            }
+                        }
+                        .padding(.vertical, 2)
+                    }
+                }
+                
+                // Bouton "Tout ajouter" si plusieurs types
+                if (typesDeNage.count + detectedTypes.count) <= 3 {
+                    Button {
+                        typesDeNage.append(contentsOf: detectedTypes)
+                        withAnimation {
+                            showTypeDetectionSuggestion = false
+                            detectedTypes = []
+                        }
+                    } label: {
+                        HStack {
+                            Image(systemName: "checkmark.circle.fill")
+                            Text("Tout ajouter (\(detectedTypes.count))")
+                                .fontWeight(.semibold)
+                        }
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 10)
+                        .background(Color(hex: "4CAF50"))
+                        .cornerRadius(10)
+                    }
+                }
+            } else {
+                // Un seul type : afficher le bouton Ajouter simple
+                HStack {
+                    Spacer()
+                    
+                    Button {
+                        if let firstType = detectedTypes.first, typesDeNage.count < 3 {
+                            typesDeNage.append(firstType)
+                        }
+                        withAnimation {
+                            showTypeDetectionSuggestion = false
+                            hasIgnoredSuggestion = false
+                        }
+                    } label: {
+                        Text("Ajouter")
+                            .font(.subheadline)
+                            .fontWeight(.semibold)
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 8)
+                            .background(Color(hex: "0277BD"))
+                            .cornerRadius(8)
+                    }
+                }
+            }
         }
+        .padding()
+        .background(Color(hex: "FFF9E6"))
+        .cornerRadius(12)
+        .transition(.scale.combined(with: .opacity))
+    }
 }
 
 // MARK: - Preview
