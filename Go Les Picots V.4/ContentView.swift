@@ -184,6 +184,7 @@ struct ModuleGridView: View {
 }
 
 // MARK: - Bouton de module
+// MARK: - Bouton de module
 struct ModuleButton: View {
     let module: ModuleItem
     let leureViewModel: LeureViewModel
@@ -194,7 +195,10 @@ struct ModuleButton: View {
     
     var body: some View {
         Button(action: {
-            if module.title == "Ma Boîte" || module.title == "Suggestion IA" {
+            // 🆕 Ajouter Bibliothèque aux modules actifs
+            if module.title == "Ma Boîte" ||
+               module.title == "Suggestion IA" ||
+               module.title == "Bibliothèque" {
                 showingModule = true
             }
         }) {
@@ -224,6 +228,18 @@ struct ModuleButton: View {
                         .foregroundColor(.white)
                         .cornerRadius(8)
                 }
+                
+                // 🆕 Badge "Nouveau" pour Module 4
+                if module.title == "Bibliothèque" {
+                    Text("NOUVEAU")
+                        .font(.caption2)
+                        .fontWeight(.bold)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(Color(hex: "4CAF50"))
+                        .foregroundColor(.white)
+                        .cornerRadius(8)
+                }
             }
             .frame(maxWidth: .infinity)
             .padding(.vertical, 15)
@@ -244,6 +260,10 @@ struct ModuleButton: View {
                         suggestionEngine: suggestionEngine,
                         navigationCoordinator: navigationCoordinator
                     )
+                }
+            } else if module.title == "Bibliothèque" {  // 🆕 AJOUTER CETTE CONDITION
+                NavigationStack {
+                    BibliothequeMenuView()
                 }
             }
         }

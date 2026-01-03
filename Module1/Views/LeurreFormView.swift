@@ -213,6 +213,11 @@ struct LeurreFormView: View {
                 // Section Finition
                 sectionFinition
                 
+                // Section Traîne (conditionnel)
+                            if typePeche == .traine {
+                                sectionTraine
+                            }
+                
                 // Section Types de nage (multi-sélection)
                 Section(header: Text("Types de nage (optionnel)")) {
                     // Bouton pour ouvrir le picker
