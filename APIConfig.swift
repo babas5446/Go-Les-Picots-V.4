@@ -13,7 +13,7 @@ import Foundation
 struct APIConfig {
     /// Clé API OpenWeatherMap One Call 3.0
     /// Obtenez votre clé sur : https://home.openweathermap.org/api_keys
-    static let openWeatherMapKey = "REMPLACER_PAR_VOTRE_CLE"
+    static let openWeatherMapKey = "Mettre la clé ici"
     
     // Autres clés API futures
     // static let autreServiceKey = "..."
